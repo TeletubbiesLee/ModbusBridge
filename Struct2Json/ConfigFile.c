@@ -41,11 +41,11 @@ void ConfigFileInit(void)
 	for(i = 0; i < lenth; i++)
 	{
 		strcpy(g_ModbusConfigFile[i].dataName, "default");
-		g_ModbusConfigFile[i].functionCode = 0;
+		g_ModbusConfigFile[i].functionCode = 1;
 		g_ModbusConfigFile[i].dataType = 0;
 		g_ModbusConfigFile[i].serialNumber = i + 1;
 		g_ModbusConfigFile[i].startAddress = 0;
-		g_ModbusConfigFile[i].number = 0;
+		g_ModbusConfigFile[i].number = 10;
 	}
 }
 

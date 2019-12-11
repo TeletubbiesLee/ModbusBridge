@@ -8,7 +8,7 @@
  * @author Zhangxiaomou
  * @version ver 1.0
  */
- 
+
 #include <stdlib.h>
 #include "string.h"
 #include <fcntl.h>
@@ -59,7 +59,7 @@ uint8_t Create_JsonFile(void)
     	return 1;
     }
     
-	writeNum = write(FilePositon, "{\"ModbusConfigFile\":[  \n", sizeof("{\"ModbusConfigFile\":[ \n"));
+	writeNum = write(FilePositon, "{\"ModbusConfigFile\":[ \n", sizeof("{\"ModbusConfigFile\":[ \n"));
 
     for(i = 0; i < length; i++)
     {
@@ -113,6 +113,7 @@ uint8_t Get_JsonFile(void)
 	int i, j;
 
     FilePositon = open("ModbusConfigFile.json", O_RDONLY);
+
     if(FilePositon < 0)
     {
         goto JSON_RES;
@@ -133,7 +134,7 @@ uint8_t Get_JsonFile(void)
     {
         goto JSON_RES;
     }
-	
+
 	for (i = 0; i < cJSON_GetArraySize(readJson); i++)   //遍历最外层json键值对
 	{
 		item = cJSON_GetArrayItem(readJson, i);

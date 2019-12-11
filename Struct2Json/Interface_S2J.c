@@ -42,12 +42,14 @@ cJSON *ConfigFile_StructToJson(void* struct_obj)
  * @return 返回指向获取到的json指针
  * 
  */
+//#include <stdio.h>
 ConfigFile *ConfigFile_JsonToStruct(cJSON* json_obj)
 {
     /* create ConfigFile structure object */
     s2j_create_struct_obj(struct_Config, ConfigFile);
 
     /* deserialize data to ConfigFile structure object. */
+    s2j_struct_get_basic_element(struct_Config, json_obj, string, dataName);	//参数
     s2j_struct_get_basic_element(struct_Config, json_obj, int, functionCode);	//参数
     s2j_struct_get_basic_element(struct_Config, json_obj, int, dataType);	//参数
 	s2j_struct_get_basic_element(struct_Config, json_obj, int, serialNumber);		//序号

@@ -61,14 +61,19 @@ int main(int argc, char *argv[])
 
     int nbPoints;               //空间大小
     int ret = -1;               //返回值
-//    int i = 0;
-//    uint8_t value = 0;
+    int i = 0;
 //    float realFloatValue = 0.0;           //浮点数的实际值
 
     vPort_s2j_init();
     ConfigFileInit();
-    Create_JsonFile();
-//    Get_JsonFile();
+    Get_JsonFile();
+
+    printf("g_ModbusConfigFile[%d].dataName = %s\n", 0, g_ModbusConfigFile[0].dataName);
+	printf("g_ModbusConfigFile[%d].functionCode = %d\n", 0, g_ModbusConfigFile[0].functionCode);
+	printf("g_ModbusConfigFile[%d].dataType = %d\n", 0, g_ModbusConfigFile[0].dataType);
+	printf("g_ModbusConfigFile[%d].serialNumber = %d\n", 0, g_ModbusConfigFile[0].serialNumber);
+	printf("g_ModbusConfigFile[%d].startAddress = %d\n", 0, g_ModbusConfigFile[0].startAddress);
+	printf("g_ModbusConfigFile[%d].number = %d\n", 0, g_ModbusConfigFile[0].number);
 
     /* 判断Modbus的类型 */
     if (argc > 1) {
@@ -127,140 +132,50 @@ int main(int argc, char *argv[])
 
     /* TODO:对bit，input bit，holding register，input register的读写命令 */
 
-    /** Coil Bits **/
-    /* Single Bit */
-#if 1
-    ret = modbus_write_bit(ctx, UT_BITS_ADDRESS, ON);
-    printf("1/2 modbus_write_bit: ");
-    ASSERT_TRUE(ret == 1, "");
+    if(g_ModbusConfigFile[0].functionCode == 1) {			/** Coil Bits **/
+    	ret = modbus_read_bits(ctx, g_ModbusConfigFile[0].startAddress, g_ModbusConfigFile[0].number, tabBits);
 
-    ret = modbus_read_bits(ctx, UT_BITS_ADDRESS, 1, tabBits);
-    printf("2/2 modbus_read_bits: ");
-    ASSERT_TRUE(ret == 1, "FAILED (nb points %d)\n", ret);
-    ASSERT_TRUE(tabBits[0] == ON, "FAILED (%0X != %0X)\n", tabBits[0], ON);
-#endif
+    	printf("Coil Bits: ");
+    	for(i = 0; i < ret; i++)
+    	{
+    		printf("%d, ", tabBits[i]);
+    	}
+    	printf("\n");
 
-    /* Multiple Bits */
-#if 0
-    uint8_t tabValue[UT_BITS_NB];
+    }else if(g_ModbusConfigFile[0].functionCode == 2) {		/** Discrete Inputs **/
+    	ret = modbus_read_input_bits(ctx, g_ModbusConfigFile[0].startAddress,
+    									g_ModbusConfigFile[0].number, tabBits);
 
-    modbus_set_bits_from_bytes(tabValue, 0, UT_BITS_NB, UT_BITS_TAB);
-    ret = modbus_write_bits(ctx, UT_BITS_ADDRESS, UT_BITS_NB, tabValue);
-    printf("1/2 modbus_write_bits: ");
-    ASSERT_TRUE(ret == UT_BITS_NB, "");
+    	printf("Discrete Bits: ");
+		for(i = 0; i < ret; i++)
+		{
+			printf("%d, ", tabBits[i]);
+		}
+		printf("\n");
 
-    ret = modbus_read_bits(ctx, UT_BITS_ADDRESS, UT_BITS_NB, tabBits);
-    printf("2/2 modbus_read_bits: ");
-    ASSERT_TRUE(ret == UT_BITS_NB, "FAILED (nb points %d)\n", ret);
+    }else if(g_ModbusConfigFile[0].functionCode == 3) {		/** Holding Registers **/
+    	ret = modbus_read_registers(ctx, g_ModbusConfigFile[0].startAddress,
+    								g_ModbusConfigFile[0].number, tabRegisters);
 
-    i = 0;
-    nbPoints = UT_BITS_NB;
-    while (nbPoints > 0) {
-        int nbBits = (nbPoints > 8) ? 8 : nbPoints;
+    	printf("Holding Registers: ");
+		for(i = 0; i < ret; i++)
+		{
+			printf("%d, ", tabBits[i]);
+		}
+		printf("\n");
 
-        value = modbus_get_byte_from_bits(tabBits, i*8, nbBits);
-        ASSERT_TRUE(value == UT_BITS_TAB[i], "FAILED (%0X != %0X)\n", value, UT_BITS_TAB[i]);
+    }else if(g_ModbusConfigFile[0].functionCode == 4) {
+    	ret = modbus_read_input_registers(ctx, g_ModbusConfigFile[0].startAddress,
+    										g_ModbusConfigFile[0].number, tabRegisters);
 
-        nbPoints -= nbBits;
-        i++;
-    }
-    printf("OK\n");
-#endif
-
-    /** Discrete Inputs **/
-#if 0
-    ret = modbus_read_input_bits(ctx, UT_INPUT_BITS_ADDRESS, UT_INPUT_BITS_NB, tabBits);
-    printf("1/1 modbus_read_input_bits: ");
-    ASSERT_TRUE(ret == UT_INPUT_BITS_NB, "FAILED (nb points %d)\n", ret);
-
-    i = 0;
-    nbPoints = UT_INPUT_BITS_NB;
-    while (nbPoints > 0) {
-        int nbBits = (nbPoints > 8) ? 8 : nbPoints;
-        value = modbus_get_byte_from_bits(tabBits, i*8, nbBits);
-        ASSERT_TRUE(value == UT_INPUT_BITS_TAB[i], "FAILED (%0X != %0X)\n", value, UT_INPUT_BITS_TAB[i]);
-
-        nbPoints -= nbBits;
-        i++;
-    }
-    printf("OK\n");
-#endif
-
-
-    /** Holding Registers **/
-    /* Single Register */
-#if 0
-    ret = modbus_write_register(ctx, UT_REGISTERS_ADDRESS, 0x1234);
-    printf("1/2 modbus_write_register: ");
-    ASSERT_TRUE(ret == 1, "");
-
-    ret = modbus_read_registers(ctx, UT_REGISTERS_ADDRESS, 1, tabRegisters);
-    printf("2/2 modbus_read_registers: ");
-    ASSERT_TRUE(ret == 1, "FAILED (nb points %d)\n", ret);
-    ASSERT_TRUE(tabRegisters[0] == 0x1234, "FAILED (%0X != %0X)\n", tabRegisters[0], 0x1234);
-#endif
-
-    /* Many Registers */
-#if 0
-    ret = modbus_write_registers(ctx, UT_REGISTERS_ADDRESS, UT_REGISTERS_NB, UT_REGISTERS_TAB);
-    printf("1/5 modbus_write_registers: ");
-    ASSERT_TRUE(ret == UT_REGISTERS_NB, "");
-
-    ret = modbus_read_registers(ctx, UT_REGISTERS_ADDRESS, UT_REGISTERS_NB, tabRegisters);
-    printf("2/5 modbus_read_registers: ");
-    ASSERT_TRUE(ret == UT_REGISTERS_NB, "FAILED (nb points %d)\n", ret);
-
-    for (i=0; i < UT_REGISTERS_NB; i++) {
-        ASSERT_TRUE(tabRegisters[i] == UT_REGISTERS_TAB[i],
-                    "FAILED (%0X != %0X)\n",
-                    tabRegisters[i], UT_REGISTERS_TAB[i]);
+    	printf("Input Registers: ");
+		for(i = 0; i < ret; i++)
+		{
+			printf("%d, ", tabBits[i]);
+		}
+		printf("\n");
     }
 
-    ret = modbus_read_registers(ctx, UT_REGISTERS_ADDRESS, 0, tabRegisters);
-    printf("3/5 modbus_read_registers (0): ");
-    ASSERT_TRUE(ret == 0, "FAILED (nb_points %d)\n", ret);
-
-    nbPoints = (UT_REGISTERS_NB > UT_INPUT_REGISTERS_NB) ? UT_REGISTERS_NB : UT_INPUT_REGISTERS_NB;
-    memset(tabRegisters, 0, nbPoints * sizeof(uint16_t));
-
-    /* Write registers to zero from tabRegisters and store read registers
-       into tabRegisters. So the read registers must set to 0, except the
-       first one because there is an offset of 1 register on write. */
-    ret = modbus_write_and_read_registers(ctx,
-                                         UT_REGISTERS_ADDRESS + 1,
-                                         UT_REGISTERS_NB - 1,
-                                         tabRegisters,
-                                         UT_REGISTERS_ADDRESS,
-                                         UT_REGISTERS_NB,
-                                         tabRegisters);
-    printf("4/5 modbus_write_and_read_registers: ");
-    ASSERT_TRUE(ret == UT_REGISTERS_NB, "FAILED (nb points %d != %d)\n", ret, UT_REGISTERS_NB);
-
-    ASSERT_TRUE(tabRegisters[0] == UT_REGISTERS_TAB[0],
-                "FAILED (%0X != %0X)\n",
-                tabRegisters[0], UT_REGISTERS_TAB[0]);
-
-    for (i=1; i < UT_REGISTERS_NB; i++) {
-        ASSERT_TRUE(tabRegisters[i] == 0,
-                    "FAILED (%0X != %0X)\n",
-                    tabRegisters[i], 0);
-    }
-#endif
-
-    /** Input Registers **/
-#if 0
-    ret = modbus_read_input_registers(ctx, UT_INPUT_REGISTERS_ADDRESS,
-                                     UT_INPUT_REGISTERS_NB,
-                                     tabRegisters);
-    printf("1/1 modbus_read_input_registers: ");
-    ASSERT_TRUE(ret == UT_INPUT_REGISTERS_NB, "FAILED (nb points %d)\n", ret);
-
-    for (i=0; i < UT_INPUT_REGISTERS_NB; i++) {
-        ASSERT_TRUE(tabRegisters[i] == UT_INPUT_REGISTERS_TAB[i],
-                    "FAILED (%0X != %0X)\n",
-                    tabRegisters[i], UT_INPUT_REGISTERS_TAB[i]);
-    }
-#endif
 
     /* MASKS */
 #if 0
@@ -303,7 +218,6 @@ int main(int argc, char *argv[])
 #endif
 
 
-close:
     /* Free the memory */
     free(tabBits);
     free(tabRegisters);

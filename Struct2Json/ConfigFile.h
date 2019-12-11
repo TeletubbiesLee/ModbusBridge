@@ -46,11 +46,11 @@ enum ConfigFileEnum
 typedef struct tagConfiguiation
 {
     char dataName[20];				//名称
-    unsigned char functionCode;		//功能码
-    unsigned char dataType;			//数据类型
-    unsigned char serialNumber;		//序号
-    unsigned int startAddress;      //起始地址
-    unsigned int number;			//大小
+    int functionCode;		//功能码
+    int dataType;			//数据类型
+    int serialNumber;		//序号
+    int startAddress;      //起始地址
+    int number;			//大小
 
 }ConfigFile;
 
