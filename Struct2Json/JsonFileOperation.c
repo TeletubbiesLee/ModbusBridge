@@ -8,9 +8,9 @@
  * @author Zhangxiaomou
  * @version ver 1.0
  */
-
+ 
 #include <stdlib.h>
-#include "string.h"
+#include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -18,7 +18,7 @@
 #include "JsonFileOperation.h"
 #include "Interface_S2J.h"
 #include "ConfigFile.h"
-
+	
 static int FilePositon;
 
 /**
@@ -47,27 +47,28 @@ uint8_t vPort_s2j_init(void)
  */
 uint8_t Create_JsonFile(void)
 {
+
     char* string;
     ssize_t writeNum = 0;
     uint16_t i;
 
     uint16_t length = GetConfigFileLength();    //获取长度
 
-    FilePositon = open("ModbusConfigFile.json", O_RDWR | O_CREAT | O_TRUNC);
+    FilePositon = open("ModbusConfigFile.json", O_RDWR | O_CREAT | O_TRUNC); //在根目录下创建一个可读写文件
     if(FilePositon < 0)
-    {
-    	return 1;
-    }
+	{
+		return 1;
+	}
     
-	writeNum = write(FilePositon, "{\"ModbusConfigFile\":[ \n", sizeof("{\"ModbusConfigFile\":[ \n"));
-
+    writeNum = write(FilePositon, "{\"ModbusConfigFile\":[ \n", strlen("{\"ModbusConfigFile\":[ \n"));    //依照标准格式进行写入
+    
     for(i = 0; i < length; i++)
     {
         cJSON* struct_json = ConfigFile_StructToJson(&g_ModbusConfigFile[i]);
         
         string = vPort_Print_cJSON(struct_json);
 
-        writeNum = write(FilePositon, string, strlen(string));
+        writeNum = write(FilePositon, string, strlen(string));    //依照标准格式进行写入
         
 		if(string != NULL)
 		{
@@ -76,20 +77,20 @@ uint8_t Create_JsonFile(void)
 		}
         if(i < (length - 1))
         {
-            writeNum = write(FilePositon, ",\n", 2);
+        	writeNum = write(FilePositon, ",\n", 2);    //依照标准格式进行写入
         }
         else
         {
-        	writeNum = write(FilePositon, "\n", 1);
+        	writeNum = write(FilePositon, "\n", 1);    //依照标准格式进行写入
         }
     }
 
-    writeNum = write(FilePositon, "]\n", 2);
+    writeNum = write(FilePositon, "]\n", 2);    //依照标准格式进行写入
 
-    writeNum = write(FilePositon, "}\n", 2);
+    writeNum = write(FilePositon, "}\n", 2);    //依照标准格式进行写入
 
     close(FilePositon);
-
+    
     return 0;
 }
 
@@ -103,25 +104,29 @@ uint8_t Create_JsonFile(void)
  */
 uint8_t Get_JsonFile(void)
 {
+    //TERMINAL_PRODUCT_SERIAL_NUMBER
     char* string = NULL;
     struct stat fileStat;
-    off_t fileSize = 0;
-    size_t stringLenth = 0;
+	off_t fileSize = 0;
+	size_t stringLenth = 0;
     cJSON * item;
     cJSON *readJson;
 	cJSON * _item;
 	int i, j;
 
-    FilePositon = open("ModbusConfigFile.json", O_RDONLY);
-
-    if(FilePositon < 0)
+	FilePositon = open("ModbusConfigFile.json", O_RDONLY); //在sojo目录下创建一个可读写文件
+	if(FilePositon < 0)
     {
         goto JSON_RES;
     }
     //获取json文件
-    fstat(FilePositon, &fileStat);
-    fileSize = fileStat.st_size;
+	fstat(FilePositon, &fileStat);
+	fileSize = fileStat.st_size;	//获取文件大小
     string  = malloc(fileSize);   //申请内存
+    if(NULL == string)
+    {
+    	goto JSON_RES;
+    }
 
     stringLenth = read(FilePositon, string, fileSize);
     if(stringLenth == -1)
@@ -135,6 +140,7 @@ uint8_t Get_JsonFile(void)
         goto JSON_RES;
     }
 
+	
 	for (i = 0; i < cJSON_GetArraySize(readJson); i++)   //遍历最外层json键值对
 	{
 		item = cJSON_GetArrayItem(readJson, i);
@@ -148,7 +154,7 @@ uint8_t Get_JsonFile(void)
 					if (cJSON_Object == _item->type)
 					{
 						/* deserialize Student structure object */
-						g_ModbusConfigFile[j] = *ConfigFile_JsonToStruct(_item);
+						g_ModbusConfigFile[j] = * ConfigFile_JsonToStruct(_item);
 					}
 				}
 			}
@@ -158,6 +164,7 @@ uint8_t Get_JsonFile(void)
 	{
 		s2j_delete_json_obj(readJson);
 	}
+
     
 JSON_RES:
 	close(FilePositon);
@@ -165,7 +172,7 @@ JSON_RES:
 	{
 		free(string);  //释放内存
 	}
-	return 0;
+    return 0;
 }
 
 

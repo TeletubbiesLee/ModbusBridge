@@ -60,20 +60,21 @@ int main(int argc, char *argv[])
     uint16_t *tabRegisters = NULL;      //寄存器的空间
 
     int nbPoints;               //空间大小
-    int ret = -1;               //返回值
-    int i = 0;
+//    int ret = -1;               //返回值
+//    int i = 0;
 //    float realFloatValue = 0.0;           //浮点数的实际值
 
     vPort_s2j_init();
-    ConfigFileInit();
+//    ConfigFileInit();
+//    Create_JsonFile();
     Get_JsonFile();
 
-    printf("g_ModbusConfigFile[%d].dataName = %s\n", 0, g_ModbusConfigFile[0].dataName);
-	printf("g_ModbusConfigFile[%d].functionCode = %d\n", 0, g_ModbusConfigFile[0].functionCode);
-	printf("g_ModbusConfigFile[%d].dataType = %d\n", 0, g_ModbusConfigFile[0].dataType);
-	printf("g_ModbusConfigFile[%d].serialNumber = %d\n", 0, g_ModbusConfigFile[0].serialNumber);
-	printf("g_ModbusConfigFile[%d].startAddress = %d\n", 0, g_ModbusConfigFile[0].startAddress);
-	printf("g_ModbusConfigFile[%d].number = %d\n", 0, g_ModbusConfigFile[0].number);
+    printf("g_ModbusConfigFile[%d].dataName = %s\n", 4, g_ModbusConfigFile[4].dataName);
+	printf("g_ModbusConfigFile[%d].functionCode = %d\n", 4, g_ModbusConfigFile[4].functionCode);
+	printf("g_ModbusConfigFile[%d].dataType = %d\n", 4, g_ModbusConfigFile[4].dataType);
+	printf("g_ModbusConfigFile[%d].serialNumber = %d\n", 4, g_ModbusConfigFile[4].serialNumber);
+	printf("g_ModbusConfigFile[%d].startAddress = %d\n", 4, g_ModbusConfigFile[4].startAddress);
+	printf("g_ModbusConfigFile[%d].number = %d\n", 4, g_ModbusConfigFile[4].number);
 
     /* 判断Modbus的类型 */
     if (argc > 1) {
@@ -131,7 +132,7 @@ int main(int argc, char *argv[])
     memset(tabRegisters, 0, nbPoints * sizeof(uint16_t));
 
     /* TODO:对bit，input bit，holding register，input register的读写命令 */
-
+#if 0
     if(g_ModbusConfigFile[0].functionCode == 1) {			/** Coil Bits **/
     	ret = modbus_read_bits(ctx, g_ModbusConfigFile[0].startAddress, g_ModbusConfigFile[0].number, tabBits);
 
@@ -175,7 +176,7 @@ int main(int argc, char *argv[])
 		}
 		printf("\n");
     }
-
+#endif
 
     /* MASKS */
 #if 0
