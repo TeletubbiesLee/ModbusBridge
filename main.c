@@ -60,21 +60,13 @@ int main(int argc, char *argv[])
     uint16_t *tabRegisters = NULL;      //寄存器的空间
 
     int nbPoints;               //空间大小
-//    int ret = -1;               //返回值
-//    int i = 0;
+    int ret = -1;               //返回值
+    int i = 0, j = 0;
 //    float realFloatValue = 0.0;           //浮点数的实际值
 
     vPort_s2j_init();
-//    ConfigFileInit();
-//    Create_JsonFile();
+    ConfigFileInit();
     Get_JsonFile();
-
-    printf("g_ModbusConfigFile[%d].dataName = %s\n", 4, g_ModbusConfigFile[4].dataName);
-	printf("g_ModbusConfigFile[%d].functionCode = %d\n", 4, g_ModbusConfigFile[4].functionCode);
-	printf("g_ModbusConfigFile[%d].dataType = %d\n", 4, g_ModbusConfigFile[4].dataType);
-	printf("g_ModbusConfigFile[%d].serialNumber = %d\n", 4, g_ModbusConfigFile[4].serialNumber);
-	printf("g_ModbusConfigFile[%d].startAddress = %d\n", 4, g_ModbusConfigFile[4].startAddress);
-	printf("g_ModbusConfigFile[%d].number = %d\n", 4, g_ModbusConfigFile[4].number);
 
     /* 判断Modbus的类型 */
     if (argc > 1) {
@@ -132,51 +124,59 @@ int main(int argc, char *argv[])
     memset(tabRegisters, 0, nbPoints * sizeof(uint16_t));
 
     /* TODO:对bit，input bit，holding register，input register的读写命令 */
-#if 0
-    if(g_ModbusConfigFile[0].functionCode == 1) {			/** Coil Bits **/
-    	ret = modbus_read_bits(ctx, g_ModbusConfigFile[0].startAddress, g_ModbusConfigFile[0].number, tabBits);
-
-    	printf("Coil Bits: ");
-    	for(i = 0; i < ret; i++)
+    while(1)
+    {
+    	for(j = 0; j < MODBUS_CONFIG_STRUCT_MAX; j++)
     	{
-    		printf("%d, ", tabBits[i]);
+    		if(g_ModbusConfigFile[j].functionCode == 1) {			/** Coil Bits **/
+				ret = modbus_read_bits(ctx, g_ModbusConfigFile[j].startAddress,
+										g_ModbusConfigFile[j].number, tabBits);
+
+				printf("%s: ", g_ModbusConfigFile[j].dataName);
+				for(i = 0; i < ret; i++)
+				{
+					printf("%d, ", tabBits[i]);
+				}
+				printf("\n");
+
+			}else if(g_ModbusConfigFile[j].functionCode == 2) {		/** Discrete Inputs **/
+				ret = modbus_read_input_bits(ctx, g_ModbusConfigFile[j].startAddress,
+												g_ModbusConfigFile[j].number, tabBits);
+
+				printf("%s: ", g_ModbusConfigFile[j].dataName);
+				for(i = 0; i < ret; i++)
+				{
+					printf("%d, ", tabBits[i]);
+				}
+				printf("\n");
+
+			}else if(g_ModbusConfigFile[j].functionCode == 3) {		/** Holding Registers **/
+				ret = modbus_read_registers(ctx, g_ModbusConfigFile[j].startAddress,
+											g_ModbusConfigFile[j].number, tabRegisters);
+
+				printf("%s: ", g_ModbusConfigFile[j].dataName);
+				for(i = 0; i < ret; i++)
+				{
+					printf("%d, ", tabRegisters[i]);
+				}
+				printf("\n");
+
+			}else if(g_ModbusConfigFile[j].functionCode == 4) {
+				ret = modbus_read_input_registers(ctx, g_ModbusConfigFile[j].startAddress,
+													g_ModbusConfigFile[j].number, tabRegisters);
+
+				printf("%s: ", g_ModbusConfigFile[j].dataName);
+				for(i = 0; i < ret; i++)
+				{
+					printf("%d, ", tabRegisters[i]);
+				}
+				printf("\n");
+			}
     	}
-    	printf("\n");
 
-    }else if(g_ModbusConfigFile[0].functionCode == 2) {		/** Discrete Inputs **/
-    	ret = modbus_read_input_bits(ctx, g_ModbusConfigFile[0].startAddress,
-    									g_ModbusConfigFile[0].number, tabBits);
-
-    	printf("Discrete Bits: ");
-		for(i = 0; i < ret; i++)
-		{
-			printf("%d, ", tabBits[i]);
-		}
-		printf("\n");
-
-    }else if(g_ModbusConfigFile[0].functionCode == 3) {		/** Holding Registers **/
-    	ret = modbus_read_registers(ctx, g_ModbusConfigFile[0].startAddress,
-    								g_ModbusConfigFile[0].number, tabRegisters);
-
-    	printf("Holding Registers: ");
-		for(i = 0; i < ret; i++)
-		{
-			printf("%d, ", tabBits[i]);
-		}
-		printf("\n");
-
-    }else if(g_ModbusConfigFile[0].functionCode == 4) {
-    	ret = modbus_read_input_registers(ctx, g_ModbusConfigFile[0].startAddress,
-    										g_ModbusConfigFile[0].number, tabRegisters);
-
-    	printf("Input Registers: ");
-		for(i = 0; i < ret; i++)
-		{
-			printf("%d, ", tabBits[i]);
-		}
-		printf("\n");
+    	sleep(10);
     }
-#endif
+
 
     /* MASKS */
 #if 0

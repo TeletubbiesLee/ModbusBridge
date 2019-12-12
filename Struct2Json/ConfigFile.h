@@ -31,21 +31,14 @@
 
 #define CHECK_PARAM(parameter) {parameter > 1 ? PARAM_ERROR : 1}    //检测参数
 
-/****************************枚举定义****************************/
-enum ConfigFileEnum
-{
-    ConfigFileEnum_ModbusBandrate = 0,		//(00)Modbus波特率
-    ConfigFileEnum_ModbusSlaveAddress,		//(01)Modbus从机地址
-	ConfigFileEnum_NodeOvertimeTime,		//(02)传感器节点超时时间
-
-    ConfigFileEnum_Over = 0xFF
-};
+#define MODBUS_CONFIG_STRUCT_MAX 30
+#define DATA_NAME_LENTH_MAX 20
 
 
 /****************************结构体定义****************************/
 typedef struct tagConfiguiation
 {
-    char dataName[20];				//名称
+    char dataName[DATA_NAME_LENTH_MAX];				//名称
     int functionCode;		//功能码
     int dataType;			//数据类型
     int serialNumber;		//序号
@@ -56,7 +49,7 @@ typedef struct tagConfiguiation
 
 
 /****************************全局变量定义****************************/
-extern ConfigFile g_ModbusConfigFile[5];
+extern ConfigFile g_ModbusConfigFile[MODBUS_CONFIG_STRUCT_MAX];
 
 
 /****************************函数定义****************************/
