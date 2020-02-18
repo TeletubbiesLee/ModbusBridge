@@ -1,11 +1,11 @@
 /**
  * @file Interface_S2J.h
  * @brief 实现struct2json函数对外接口
- * @copyright Copyright (c) 2017 Beijing SOJO Electric CO., LTD.
+ * @copyright Copyright (c) 2020 Beijing SOJO Electric CO., LTD.
  * @company SOJO
- * @date 2018.05.10
+ * @date 2020.02.18
  *
- * @author Zhangxiaomou
+ * @author Lei.L
  * @version ver 1.0
  */
 

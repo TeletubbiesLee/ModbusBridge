@@ -1,11 +1,11 @@
 /**
  * @file ConfigFile.h
  * @brief 程序部分参数配置文件
- * @copyright Copyright (c) 2017 Beijing SOJO Electric CO., LTD.
- * @company  SOJO
- * @date 2018.6.15
+ * @copyright Copyright (c) 2020 Beijing SOJO Electric CO., LTD.
+ * @company SOJO
+ * @date 2020.02.18
  *
- * @author Zhangxiaomou
+ * @author Lei.L
  * @version ver 1.0
  */
  
@@ -15,14 +15,6 @@
 
 #include <stdint.h>
 
-
-/******************说明******************/
-/**
- * @note 配置文件
- */
-/******************END******************/
-
-/**********************************BEGIN**********************************/
 /****************************宏定义****************************/
 #define DIS_ENABLE  0               //禁止
 #define ENABLE      !DIS_ENABLE     //使能
@@ -44,7 +36,6 @@ typedef struct tagConfiguiation
     int serialNumber;		//序号
     int startAddress;      //起始地址
     int number;			//大小
-
 }ConfigFile;
 
 
@@ -55,7 +46,6 @@ extern ConfigFile g_ModbusConfigFile[MODBUS_CONFIG_STRUCT_MAX];
 /****************************函数定义****************************/
 extern uint16_t GetConfigFileLength(void);
 extern void ConfigFileInit(void);
-
 
 /**********************************END**********************************/
 

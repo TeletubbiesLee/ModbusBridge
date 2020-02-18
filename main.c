@@ -25,30 +25,7 @@
 
 #include ".\Modbus\unit-test.h"
 
-#define BUG_REPORT(_cond, _format, _args ...) \
-    printf("\nLine %d: assertion error for '%s': " _format "\n", __LINE__, # _cond, ## _args);
-
-#define ASSERT_TRUE(_cond, _format, __args...) {  \
-            if (_cond) {                                  \
-                printf("OK\n");                           \
-            } else {                                      \
-                BUG_REPORT(_cond, _format, ## __args);    \
-                goto close;                               \
-            }                                             \
-        };
-
-
-enum {
-    TCP,
-    TCP_PI,
-    RTU
-};
-
-
-int equal_dword(uint16_t *tab_reg, const uint32_t value) {
-    return ((tab_reg[0] == (value >> 16)) && (tab_reg[1] == (value & 0xFFFF)));
-}
-
+void ModbusPrintf(uint8_t* dataName, int dataNumber, void* data);
 
 
 /* client主机 */
@@ -61,40 +38,20 @@ int main(int argc, char *argv[])
 
     int nbPoints;               //空间大小
     int ret = -1;               //返回值
-    int i = 0, j = 0;
-//    float realFloatValue = 0.0;           //浮点数的实际值
+    int j = 0;
+    ConfigFile *configTemp = NULL;  //用于临时保存结构体
 
-    vPort_s2j_init();
+    Struct2JsonInit();
     ConfigFileInit();
-    Get_JsonFile();
+    GetJsonFile();
 
-    /* 判断Modbus的类型 */
-    if (argc > 1) {
-        if (0 == strcmp(argv[1], "tcp")) {
-            useBackend = TCP;
-        } else if (0 == strcmp(argv[1], "tcppi")) {
-            useBackend = TCP_PI;
-        } else if (0 == strcmp(argv[1], "rtu")) {
-            useBackend = RTU;
-        } else {
-            printf("Usage:\n  %s [tcp|tcppi|rtu] - Modbus client for unit testing\n\n", argv[0]);
-            exit(1);
-        }
-    } else {
-        /* By default */
-        useBackend = RTU;
-    }
+    useBackend = RTU;       //Modbus使用RTU类型
 
     /* 根据Modbus_RTU的类型建立连接 */
-    if (TCP == useBackend) {
-        ctx = modbus_new_tcp("127.0.0.1", 1502);
-    } else if (TCP_PI == useBackend) {
-        ctx = modbus_new_tcp_pi("::1", "1502");
-    } else {
-        ctx = modbus_new_rtu("/dev/ttymxc1", 115200, 'N', 8, 1);
-    }
-    if (NULL == ctx) {
-        fprintf(stderr, "Unable to allocate libmodbus context\n");
+    ctx = modbus_new_rtu(UART_DEVICE_NAME, UART_BANDRATE, UART_PARITY, UART_DATA_BIT, UART_STOP_BIT);
+    if (NULL == ctx)
+    {
+        printf("Unable to allocate libmodbus context\n");
         return -1;
     }
 
@@ -102,13 +59,12 @@ int main(int argc, char *argv[])
     modbus_set_error_recovery(ctx, MODBUS_ERROR_RECOVERY_LINK | MODBUS_ERROR_RECOVERY_PROTOCOL);
 
     /* 设置从机ID */
-    if (RTU == useBackend) {
-        modbus_set_slave(ctx, SERVER_ID);
-    }
+    modbus_set_slave(ctx, SERVER_ID);
 
     /* 建立连接 */
-    if (-1 == modbus_connect(ctx)) {
-        fprintf(stderr, "Connection failed: %s\n", modbus_strerror(errno));
+    if (-1 == modbus_connect(ctx))
+    {
+        printf("Connection failed: %s\n", modbus_strerror(errno));
         modbus_free(ctx);
         return -1;
     }
@@ -128,96 +84,46 @@ int main(int argc, char *argv[])
     {
     	for(j = 0; j < MODBUS_CONFIG_STRUCT_MAX; j++)
     	{
-    		if(g_ModbusConfigFile[j].functionCode == 1) {			/** Coil Bits **/
-				ret = modbus_read_bits(ctx, g_ModbusConfigFile[j].startAddress,
-										g_ModbusConfigFile[j].number, tabBits);
+            configTemp = &g_ModbusConfigFile[j];
+            switch(configTemp.functionCode)
+            {
+                case COIL_BITS:
+                    ret = modbus_read_bits(ctx, configTemp.startAddress,
+										configTemp.number, tabBits);
+                    break;
+                case DISCRETE_INPUTS:
+                    ret = modbus_read_input_bits(ctx, configTemp.startAddress,
+												configTemp.number, tabBits);
+                    break;
+                case HOLDING_REGISTER:
+                    ret = modbus_read_registers(ctx, configTemp.startAddress,
+											configTemp.number, tabRegisters);
+                    break;
+                case INPUT_REGISTER:
+                    ret = modbus_read_input_registers(ctx, configTemp.startAddress,
+													configTemp.number, tabRegisters);
+                    break;
+                default:
+                    ret = -1;
+                    break;
+            }
 
-				printf("%s: ", g_ModbusConfigFile[j].dataName);
-				for(i = 0; i < ret; i++)
-				{
-					printf("%d, ", tabBits[i]);
-				}
-				printf("\n");
-
-			}else if(g_ModbusConfigFile[j].functionCode == 2) {		/** Discrete Inputs **/
-				ret = modbus_read_input_bits(ctx, g_ModbusConfigFile[j].startAddress,
-												g_ModbusConfigFile[j].number, tabBits);
-
-				printf("%s: ", g_ModbusConfigFile[j].dataName);
-				for(i = 0; i < ret; i++)
-				{
-					printf("%d, ", tabBits[i]);
-				}
-				printf("\n");
-
-			}else if(g_ModbusConfigFile[j].functionCode == 3) {		/** Holding Registers **/
-				ret = modbus_read_registers(ctx, g_ModbusConfigFile[j].startAddress,
-											g_ModbusConfigFile[j].number, tabRegisters);
-
-				printf("%s: ", g_ModbusConfigFile[j].dataName);
-				for(i = 0; i < ret; i++)
-				{
-					printf("%d, ", tabRegisters[i]);
-				}
-				printf("\n");
-
-			}else if(g_ModbusConfigFile[j].functionCode == 4) {
-				ret = modbus_read_input_registers(ctx, g_ModbusConfigFile[j].startAddress,
-													g_ModbusConfigFile[j].number, tabRegisters);
-
-				printf("%s: ", g_ModbusConfigFile[j].dataName);
-				for(i = 0; i < ret; i++)
-				{
-					printf("%d, ", tabRegisters[i]);
-				}
-				printf("\n");
-			}
+            if(ret > -1)    //用于打印获取到的数据，用于调试使用
+            {
+                if (configTemp.functionCode == COIL_BITS || configTemp.functionCode == DISCRETE_INPUTS)
+                {
+                    ModbusPrintf(g_ModbusConfigFile[j].dataName, ret, tabBits);
+                }
+                else if(configTemp.functionCode == HOLDING_REGISTER || configTemp.functionCode == INPUT_REGISTER)
+                {
+                    ModbusPrintf(g_ModbusConfigFile[j].dataName, ret, tabRegisters);
+                }
+            }
+            configTemp = NULL;
     	}
-
+        
     	sleep(10);
     }
-
-
-    /* MASKS */
-#if 0
-    printf("1/1 Write mask: ");
-    ret = modbus_write_register(ctx, UT_REGISTERS_ADDRESS, 0x12);
-    ret = modbus_mask_write_register(ctx, UT_REGISTERS_ADDRESS, 0xF2, 0x25);
-    ASSERT_TRUE(ret != -1, "FAILED (%x == -1)\n", ret);
-    ret = modbus_read_registers(ctx, UT_REGISTERS_ADDRESS, 1, tabRegisters);
-    ASSERT_TRUE(tabRegisters[0] == 0x17,
-                "FAILED (%0X != %0X)\n",
-                tabRegisters[0], 0x17);
-#endif
-
-
-    /** FLOAT **/
-#if 0
-    printf("1/4 Set/get float ABCD: ");
-    modbus_set_float_abcd(UT_REAL, tabRegisters);
-    ASSERT_TRUE(equal_dword(tabRegisters, UT_IREAL_ABCD), "FAILED Set float ABCD");
-    realFloatValue = modbus_get_float_abcd(tabRegisters);
-    ASSERT_TRUE(realFloatValue == UT_REAL, "FAILED (%f != %f)\n", realFloatValue, UT_REAL);
-
-    printf("2/4 Set/get float DCBA: ");
-    modbus_set_float_dcba(UT_REAL, tabRegisters);
-    ASSERT_TRUE(equal_dword(tabRegisters, UT_IREAL_DCBA), "FAILED Set float DCBA");
-    realFloatValue = modbus_get_float_dcba(tabRegisters);
-    ASSERT_TRUE(realFloatValue == UT_REAL, "FAILED (%f != %f)\n", realFloatValue, UT_REAL);
-
-    printf("3/4 Set/get float BADC: ");
-    modbus_set_float_badc(UT_REAL, tabRegisters);
-    ASSERT_TRUE(equal_dword(tabRegisters, UT_IREAL_BADC), "FAILED Set float BADC");
-    realFloatValue = modbus_get_float_badc(tabRegisters);
-    ASSERT_TRUE(realFloatValue == UT_REAL, "FAILED (%f != %f)\n", realFloatValue, UT_REAL);
-
-    printf("4/4 Set/get float CDAB: ");
-    modbus_set_float_cdab(UT_REAL, tabRegisters);
-    ASSERT_TRUE(equal_dword(tabRegisters, UT_IREAL_CDAB), "FAILED Set float CDAB");
-    realFloatValue = modbus_get_float_cdab(tabRegisters);
-    ASSERT_TRUE(realFloatValue == UT_REAL, "FAILED (%f != %f)\n", realFloatValue, UT_REAL);
-#endif
-
 
     /* Free the memory */
     free(tabBits);
@@ -228,6 +134,26 @@ int main(int argc, char *argv[])
     modbus_free(ctx);
 
     return 0;
+}
+
+
+/**
+ * @fn ConfigFileInit
+ * @brief 配置文件初始化
+ * @param dataName 数据的名称
+ * @param dataNumber 数据的数量
+ * @param data 数据的首地址
+ * @return void
+ */
+void ModbusPrintf(uint8_t* dataName, int dataNumber, void* data)
+{
+    int i = 0;
+    printf("%s: ", dataName);
+    for(i = 0; i < dataNumber; i++)
+    {
+        printf("%d, ", data[i]);
+    }
+    printf("\n");
 }
 
 

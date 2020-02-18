@@ -1,11 +1,11 @@
 /**
  * @file JsonFileOperation.c
  * @brief 实现Json文件操作
- * @copyright Copyright (c) 2017 Beijing SOJO Electric CO., LTD.
+ * @copyright Copyright (c) 2020 Beijing SOJO Electric CO., LTD.
  * @company SOJO
- * @date 2018.05.14
+ * @date 2020.02.18
  *
- * @author Zhangxiaomou
+ * @author Lei.L
  * @version ver 1.0
  */
  
@@ -27,7 +27,7 @@ static int FilePositon;
  * @return  RT_EOK    初始化成功
  *          其他      失败
  */
-uint8_t vPort_s2j_init(void)
+uint8_t Struct2JsonInit(void)
 {
     s2jHook.malloc_fn = malloc;  //初始化内存申请函数
     s2jHook.free_fn = free;
@@ -45,7 +45,7 @@ uint8_t vPort_s2j_init(void)
  * @param name    需要转换的结构体
  * 
  */
-uint8_t Create_JsonFile(void)
+uint8_t CreateJsonFile(void)
 {
 
     char* string;
@@ -102,7 +102,7 @@ uint8_t Create_JsonFile(void)
  *         1    目录中无json文件，使用默认配置
  *         2    其他错误
  */
-uint8_t Get_JsonFile(void)
+uint8_t GetJsonFile(void)
 {
     //TERMINAL_PRODUCT_SERIAL_NUMBER
     char* string = NULL;

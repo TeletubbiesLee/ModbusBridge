@@ -1,11 +1,11 @@
 /**
  * @file ConfigFile.c
  * @brief 程序部分参数配置文件
- * @copyright Copyright (c) 2017 Beijing SOJO Electric CO., LTD.
- * @company  SOJO
- * @date 2018.6.15
+ * @copyright Copyright (c) 2020 Beijing SOJO Electric CO., LTD.
+ * @company SOJO
+ * @date 2020.02.18
  *
- * @author Zhangxiaomou
+ * @author Lei.L
  * @version ver 1.0
  */
  
@@ -15,7 +15,7 @@
 #include <stdio.h>
 
 
-/*************************************************静态变量*************************************************/
+/*************************************************全局变量*************************************************/
 ConfigFile g_ModbusConfigFile[MODBUS_CONFIG_STRUCT_MAX];
 
 /*************************************************END*************************************************/
@@ -25,7 +25,6 @@ ConfigFile g_ModbusConfigFile[MODBUS_CONFIG_STRUCT_MAX];
  * @fn GetConfigFileLength
  * @brief 获取配置文件结构体数组长度
  * @return 返回数组长度
- * 
  */
 inline uint16_t GetConfigFileLength(void)
 {
@@ -33,10 +32,16 @@ inline uint16_t GetConfigFileLength(void)
 }
 
 
+/**
+ * @fn ConfigFileInit
+ * @brief 配置文件初始化
+ * @return void
+ */
 void ConfigFileInit(void)
 {
 	uint16_t lenth = 0;
 	uint8_t i = 0;
+	
 	lenth = GetConfigFileLength();
 	for(i = 0; i < lenth; i++)
 	{

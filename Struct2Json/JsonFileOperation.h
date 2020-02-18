@@ -1,11 +1,11 @@
 /**
  * @file JsonFileOperation.c
  * @brief 实现Json文件操作
- * @copyright Copyright (c) 2017 Beijing SOJO Electric CO., LTD.
+ * @copyright Copyright (c) 2020 Beijing SOJO Electric CO., LTD.
  * @company SOJO
- * @date 2018.06.15
+ * @date 2020.02.18
  *
- * @author Zhangxiaomou
+ * @author Lei.L
  * @version ver 1.0
  */
  
@@ -15,9 +15,9 @@
 #include "stdint.h"
 
 
-extern uint8_t vPort_s2j_init(void);  //初始化struct2json
-extern uint8_t Create_JsonFile(void);
-extern uint8_t Get_JsonFile(void);
+extern uint8_t Struct2JsonInit(void);  //初始化struct2json
+extern uint8_t CreateJsonFile(void);
+extern uint8_t GetJsonFile(void);
 
 #endif
 
