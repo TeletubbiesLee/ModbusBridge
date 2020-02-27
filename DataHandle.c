@@ -13,6 +13,7 @@
 #include "ConfigFile.h"
 #include <fcntl.h>
 #include <time.h>
+#include "../csv.h"
 
 
 /**
@@ -218,125 +219,69 @@ int GetTimeStr(char *timeStr)
 
 
 /**
- * @fn ParseBitsFile
- * @brief 解析离散线圈的数据文件
+ * @fn ParseCSVDataFile
+ * @brief 解析数据文件。解析bit，则registerData赋值NULL；解析register，则bitData赋值NULL
  * @param fileName 文件名
- * @param tabBits 需要保存的数据
- * @param tabNumber tabBits数组的大小
- * @param modbusCoil 数据的相关信息结构体
+ * @param bitData 需要保存的bit数据
+ * @param registerData 需要保存的寄存器数据
+ * @param arrayNumber 数据数组大小
  * @return 成功:0 错误:-1
  */
-int ParseBitsFile(char *fileName, uint8_t *tabBits, int tabNumber, ConfigFile *modbusCoil)
+int ParseCSVDataFile(char *fileName, uint8 *bitData, uint16 *registerData, int arrayNumber)
 {
-    int fileFd = 0;         //文件描述符
-    char modbusString[STRING_LENTH] = {0};    //字符串
-    int modbusNumber = 0;               //modbus的数量
-    int ret = -1, i = 0;
-    char tempChar = '0';
+    FILE *fp = NULL;
+    int err, done = 0;
+    char *csvLineString = NULL;     //一行csv文件字符串
+    char **parsed = NULL;           //一个csv文件中一个字符串元素
+    int i = 0, num = 0;
+    bool bitOrRegister = IS_BIT;
 
-    memset(tabBits, 0, tabNumber);
+    if(NULL != bitData && NULL == registerData)
+    {
+        bitOrRegister = IS_BIT;
+        memset(bitData, 0, arrayNumber);
+    }
+    else if(NULL == bitData && NULL != registerData)
+    {
+        bitOrRegister = IS_REGISTER;
+        memset(registerData, 0, arrayNumber);
+    }
+    else
+    {
+        return -1;
+    }
 
-    fileFd = open(fileName, O_RDONLY);      //打开需要解析的文件
-    if(fileFd < 0)
-		return -1;
+    fp = fopen(fileName, "r");
 
     /* 保存信息的格式：Data Name,数据名称,Start Address,起始地址,Number,数量, */
-    for( ; tempChar == ','; )
-    {
-        read(fileFd, &tempChar, 1);
-    }
-    ret = ReadStringFromFile(fileFd, modbusString, STRING_LENTH);
-    if(0 != ret)
-    {
-        printf("Read Modbus Name String Error!\n");
-        return -1;
-    }
-    ret = strncmp(modbusString, modbusCoil->dataName, STRING_LENTH);
-    if(0 != ret)
-    {
-        printf("Modbus Name Error!\n");
-        return -1;
-    }
+    csvLineString = fread_csv_line(fp, 1024, &done, &err);
+    parsed = parse_csv(csvLineString);
 
-    for(i = 0; i < 3; )
+    while(num < tabNumber)
     {
-        read(fileFd, &tempChar, 1);
-        if(tempChar == ',')
-            i++;
-    }
-    ret = ReadStringFromFile(fileFd, modbusString, STRING_LENTH);
-    if(0 != ret)
-    {
-        printf("Read Modbus Number String Error!\n");
-        return -1;
-    }
-    modbusNumber = String2Int(modbusString, STRING_LENTH);
-    if(modbusNumber != modbusCoil->number)
-    {
-        printf("Modbus Number Error!\n");
-        return -1;
-    }
-
-    /* 解析数据 */
-    for( ; tempChar == '\n'; )
-    {
-        read(fileFd, &tempChar, 1);
-    }
-    for(i = 0; i < modbusCoil->number && i < tabNumber; i++)
-    {
-        ret = ReadStringFromFile(fileFd, modbusString, STRING_LENTH);
-        if(0 != ret)
+        csvLineString = fread_csv_line(fp, 1024, &done, &err);
+        parsed = parse_csv(csvLineString);
+        for(i = 0; i < 10 && num < tabNumber; i++)
         {
-            printf("Read Modbus Data String Error!\n");
-            return -1;
-        }
-        modbusNumber = String2Int(modbusString, STRING_LENTH);
-        if(1 == modbusNumber || 0 == modbusNumber)
-        {
-            tabBits[i] = modbusNumber;
-        }
-
-        if((i%10) == 9)
-        {
-            read(fileFd, &tempChar, 1);
+            switch (bitOrRegister)
+            {
+                case IS_BIT:
+                    bitData[num] = String2Int(parsed[i], strlen(parsed[i]));
+                    break;
+                case IS_REGISTER:
+                    registerData[num] = String2Int(parsed[i], strlen(parsed[i]));
+                    break;
+                default:
+                    break;
+            }
+            num++;
         }
     }
+
+    fclose(fp);
+    csvLineString = NULL;
+    parsed = NULL;
     
-    return 0;
-}
-
-
-/**
- * @fn ReadStringFromFile
- * @brief 从文件中当前位置读出一个字符串，遇到','停止
- * @param fileFd 文件描述符
- * @param string 读出的字符串
- * @param stringLenth 字符串数组长度
- * @return 成功:0 错误:-1
- */
-int ReadStringFromFile(int fileFd, char *string, int stringLenth)
-{
-    int stringNumber = 0;       //实际读到的字符串长度
-    char tempChar = 0;          //读出的单个字符
-    int i = 0;
-
-    memset(string, 0, stringLenth);     //清空一下string
-    for(i = 0; tempChar != ',' || tempChar != '\n'; )
-    {
-        stringNumber = read(fileFd, &tempChar, 1);
-        if(1 == stringNumber)
-        {
-            if(i < stringLenth)
-            {
-                string[i] = tempChar;
-                i++
-            }
-            else
-            {
-                return -1;
-            }
-        }
-    }
     return 0;
 }
 
@@ -371,3 +316,5 @@ int String2Int(char *string, int StringLenth)
 
     return number;
 }
+
+
