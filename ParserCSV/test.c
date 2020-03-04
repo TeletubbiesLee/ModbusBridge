@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "../csv.h"
+#include "csv.h"
 
 int test_parse_csv(void);
 int test_split_on_unescaped_newlines(void);
@@ -23,6 +23,7 @@ int test_main(void) {
   run_test("test_split_on_unescaped_newlines", test_split_on_unescaped_newlines);
 
   run_test("test_fread_csv_line", test_fread_csv_line);
+  return 0;
 }
 
 int test_parse_csv(void)

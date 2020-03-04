@@ -12,6 +12,8 @@
 #ifndef _DATA_HANDLE_H_
 #define _DATA_HANDLE_H_
 
+#include "./Struct2Json/ConfigFile.h"
+
 #define STRING_LENTH DATA_NAME_LENTH_MAX
 #define IS_BIT 0
 #define IS_REGISTER 1
@@ -23,7 +25,7 @@ int Int2String(int number, char *string);
 int SaveIntToFile(int fileFd, int number);
 int SaveStringToFile(int fileFd, char *string, int stringLenth);
 int GetTimeStr(char *timeStr);
-int ParseCSVDataFile(char *fileName, uint8 *bitData, uint16 *registerData, int arrayNumber);
+int ParseCSVDataFile(char *fileName, uint8_t *bitData, uint16_t *registerData, int arrayNumber);
 int String2Int(char *string, int StringLenth);
 
 #endif

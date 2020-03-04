@@ -1,6 +1,7 @@
 #ifndef CSV_DOT_H_INCLUDE_GUARD
 #define CSV_DOT_H_INCLUDE_GUARD
 
+
 #define CSV_ERR_LONGLINE 0
 #define CSV_ERR_NO_MEMORY 1
 

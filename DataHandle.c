@@ -10,10 +10,13 @@
  */
 
 #include "DataHandle.h"
-#include "ConfigFile.h"
 #include <fcntl.h>
 #include <time.h>
-#include "../csv.h"
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <unistd.h>
+#include "./ParserCSV/csv.h"
 
 
 /**
@@ -26,13 +29,12 @@
 int SaveBitsFile(uint8_t *tabBits, ConfigFile *modbusCoil)
 {
     int fileFd = 0;         //文件描述符
-    ssize_t writeNum = 0;   //写入的数据长度
     int i = 0;
     char fileName[40] = {0};    //文件名
 
     GetTimeStr(fileName);
     strncat(fileName, "Bits.csv", strlen("Bits.csv"));
-    fileFd = open(fileName, O_RDONLY | O_CREATE);
+    fileFd = open(fileName, O_RDONLY | O_CREAT);
     if(fileFd < 0)
 		return -1;
 
@@ -75,13 +77,12 @@ int SaveBitsFile(uint8_t *tabBits, ConfigFile *modbusCoil)
 int SaveRegistersFile(uint16_t *tabRegisters, ConfigFile *modbusRegister)
 {
     int fileFd = 0;         //文件描述符
-    ssize_t writeNum = 0;   //写入的数据长度
     int i = 0;
     char fileName[40] = {0};    //文件名
 
     GetTimeStr(fileName);
     strncat(fileName, "Regiters.csv", strlen("Regiters.csv"));
-    fileFd = open(fileName, O_RDONLY | O_CREATE);
+    fileFd = open(fileName, O_RDONLY | O_CREAT);
     if(fileFd < 0)
 		return -1;
 
@@ -98,6 +99,7 @@ int SaveRegistersFile(uint16_t *tabRegisters, ConfigFile *modbusRegister)
     }
 
     close(fileFd);
+    return 0;
 }
 
 
@@ -108,7 +110,7 @@ int SaveRegistersFile(uint16_t *tabRegisters, ConfigFile *modbusRegister)
  * @param dataInfo 数据的相关信息结构体
  * @return 成功:0 错误:-1
  */
-int SaveDataInfo(int filefd, ConfigFile *dataInfo)
+int SaveDataInfo(int fileFd, ConfigFile *dataInfo)
 {
     /* 保存信息的格式：Data Name,数据名称,Start Address,起始地址,Number,数量, */
     SaveStringToFile(fileFd, "Data Name,", strlen("Data Name,"));
@@ -173,7 +175,7 @@ int SaveIntToFile(int fileFd, int number)
     stringLenth = Int2String(number, string);
     if(stringLenth == -1)
         return -1;
-    return SaveStringToFile(fileFd, string);
+    return SaveStringToFile(fileFd, string, stringLenth);
 }
 
 
@@ -227,7 +229,7 @@ int GetTimeStr(char *timeStr)
  * @param arrayNumber 数据数组大小
  * @return 成功:0 错误:-1
  */
-int ParseCSVDataFile(char *fileName, uint8 *bitData, uint16 *registerData, int arrayNumber)
+int ParseCSVDataFile(char *fileName, uint8_t *bitData, uint16_t *registerData, int arrayNumber)
 {
     FILE *fp = NULL;
     int err, done = 0;
@@ -257,11 +259,11 @@ int ParseCSVDataFile(char *fileName, uint8 *bitData, uint16 *registerData, int a
     csvLineString = fread_csv_line(fp, 1024, &done, &err);
     parsed = parse_csv(csvLineString);
 
-    while(num < tabNumber)
+    while(num < arrayNumber)
     {
         csvLineString = fread_csv_line(fp, 1024, &done, &err);
         parsed = parse_csv(csvLineString);
-        for(i = 0; i < 10 && num < tabNumber; i++)
+        for(i = 0; i < 10 && num < arrayNumber; i++)
         {
             switch (bitOrRegister)
             {

@@ -12,6 +12,7 @@
 #include ".\Modbus\modbus.h"
 #include ".\Struct2Json\JsonFileOperation.h"
 #include ".\Struct2Json\ConfigFile.h"
+#include "DataHandle.h"
 #ifdef _WIN32
 # include <winsock2.h>
 #else
@@ -26,7 +27,7 @@
 
 #include ".\Modbus\unit-test.h"
 
-void ModbusPrintf(uint8_t* dataName, int dataNumber, void* data);
+void ModbusPrintf(uint8_t* dataName, int dataNumber, uint8_t* data);
 
 
 /* client主机 */
@@ -44,7 +45,9 @@ int main(int argc, char *argv[])
 
     Struct2JsonInit();
     ConfigFileInit();
-    GetJsonFile();
+    //GetJsonFile();
+    CreateJsonFile();
+    return 0;
 
     useBackend = RTU;       //Modbus使用RTU类型
 
@@ -86,26 +89,26 @@ int main(int argc, char *argv[])
     	for(j = 0; j < MODBUS_CONFIG_STRUCT_MAX; j++)
     	{
             configTemp = &g_ModbusConfigFile[j];
-            switch(configTemp.functionCode)
+            switch(configTemp->functionCode)
             {
                 case COIL_BITS:
-                    ret = modbus_read_bits(ctx, configTemp.startAddress,
-										configTemp.number, tabBits);
+                    ret = modbus_read_bits(ctx, configTemp->startAddress,
+										configTemp->number, tabBits);
                     SaveBitsFile(tabBits, configTemp);
                     break;
                 case DISCRETE_INPUTS:
-                    ret = modbus_read_input_bits(ctx, configTemp.startAddress,
-												configTemp.number, tabBits);
+                    ret = modbus_read_input_bits(ctx, configTemp->startAddress,
+												configTemp->number, tabBits);
                     SaveBitsFile(tabBits, configTemp);
                     break;
                 case HOLDING_REGISTER:
-                    ret = modbus_read_registers(ctx, configTemp.startAddress,
-											configTemp.number, tabRegisters);
+                    ret = modbus_read_registers(ctx, configTemp->startAddress,
+											configTemp->number, tabRegisters);
                     SaveRegistersFile(tabRegisters, configTemp);
                     break;
                 case INPUT_REGISTER:
-                    ret = modbus_read_input_registers(ctx, configTemp.startAddress,
-													configTemp.number, tabRegisters);
+                    ret = modbus_read_input_registers(ctx, configTemp->startAddress,
+													configTemp->number, tabRegisters);
                     SaveRegistersFile(tabRegisters, configTemp);
                     break;
                 default:
@@ -113,17 +116,6 @@ int main(int argc, char *argv[])
                     break;
             }
 
-            if(ret > -1)    //用于打印获取到的数据，用于调试使用
-            {
-                if (configTemp.functionCode == COIL_BITS || configTemp.functionCode == DISCRETE_INPUTS)
-                {
-                    ModbusPrintf(g_ModbusConfigFile[j].dataName, ret, tabBits);
-                }
-                else if(configTemp.functionCode == HOLDING_REGISTER || configTemp.functionCode == INPUT_REGISTER)
-                {
-                    ModbusPrintf(g_ModbusConfigFile[j].dataName, ret, tabRegisters);
-                }
-            }
             configTemp = NULL;
     	}
         
@@ -150,7 +142,7 @@ int main(int argc, char *argv[])
  * @param data 数据的首地址
  * @return void
  */
-void ModbusPrintf(uint8_t* dataName, int dataNumber, void* data)
+void ModbusPrintf(uint8_t* dataName, int dataNumber, uint8_t* data)
 {
     int i = 0;
     printf("%s: ", dataName);
