@@ -90,18 +90,22 @@ int main(int argc, char *argv[])
                 case COIL_BITS:
                     ret = modbus_read_bits(ctx, configTemp.startAddress,
 										configTemp.number, tabBits);
+                    SaveBitsFile(tabBits, configTemp);
                     break;
                 case DISCRETE_INPUTS:
                     ret = modbus_read_input_bits(ctx, configTemp.startAddress,
 												configTemp.number, tabBits);
+                    SaveBitsFile(tabBits, configTemp);
                     break;
                 case HOLDING_REGISTER:
                     ret = modbus_read_registers(ctx, configTemp.startAddress,
 											configTemp.number, tabRegisters);
+                    SaveRegistersFile(tabRegisters, configTemp);
                     break;
                 case INPUT_REGISTER:
                     ret = modbus_read_input_registers(ctx, configTemp.startAddress,
 													configTemp.number, tabRegisters);
+                    SaveRegistersFile(tabRegisters, configTemp);
                     break;
                 default:
                     ret = -1;
