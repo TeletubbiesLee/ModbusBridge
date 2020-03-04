@@ -34,7 +34,7 @@ int SaveBitsFile(uint8_t *tabBits, ConfigFile *modbusCoil)
 
     GetTimeStr(fileName);
     strncat(fileName, "Bits.csv", strlen("Bits.csv"));
-    fileFd = open(fileName, O_RDONLY | O_CREAT);
+    fileFd = open(fileName, O_RDWR | O_CREAT);
     if(fileFd < 0)
 		return -1;
 
@@ -82,7 +82,7 @@ int SaveRegistersFile(uint16_t *tabRegisters, ConfigFile *modbusRegister)
 
     GetTimeStr(fileName);
     strncat(fileName, "Regiters.csv", strlen("Regiters.csv"));
-    fileFd = open(fileName, O_RDONLY | O_CREAT);
+    fileFd = open(fileName, O_RDWR | O_CREAT);
     if(fileFd < 0)
 		return -1;
 
@@ -91,6 +91,7 @@ int SaveRegistersFile(uint16_t *tabRegisters, ConfigFile *modbusRegister)
     for(i = 0; i < modbusRegister->number; i++)      //保存数据
     {
         SaveIntToFile(fileFd, (int)tabRegisters[i]);
+        SaveStringToFile(fileFd, ",", strlen(","));
 
         if((i%10) == 9)
         {
@@ -134,29 +135,41 @@ int SaveDataInfo(int fileFd, ConfigFile *dataInfo)
  */
 int Int2String(int number, char *string)
 {
-    int i = 0;
-    bool isPositive = true;     //正数标志位
-    int temp = number;
+    int i = 0, j = 0;
+    int tempNum = number;
+    char tempString[20] = {0};
 
     if(string == NULL)
     {
         return -1;
     }
 
-    if(temp < 0)        //判断正负数
-    {
-        temp = -temp;
-        string[i++] = '-';
-        isPositive = false;
-    }
-    for(; temp > 0; i++)        //数字转换为字符
-    {
-        string[i] = temp % 10 + '0';
-        temp /= 10;
-    }
-    string[i] = '\0';
+    if(tempNum == 0)
+	{
+		string[0] = '0';
+		string[1] = '\0';
+		return 1;
+	}
 
-    return i;
+    if(tempNum < 0)        //判断正负数
+    {
+    	tempNum = -tempNum;
+    	string[j++] = '-';
+    }
+
+    for(; tempNum > 0; i++)        //数字转换为字符
+    {
+    	tempString[i] = tempNum % 10 + '0';
+        tempNum /= 10;
+    }
+
+    for(; i > 0; j++)
+    {
+    	string[j] = tempString[--i];
+    }
+    string[j] = '\0';
+
+    return j;
 }
 
 

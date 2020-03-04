@@ -45,9 +45,7 @@ int main(int argc, char *argv[])
 
     Struct2JsonInit();
     ConfigFileInit();
-    //GetJsonFile();
-    CreateJsonFile();
-    return 0;
+    GetJsonFile();
 
     useBackend = RTU;       //Modbus使用RTU类型
 
@@ -94,22 +92,26 @@ int main(int argc, char *argv[])
                 case COIL_BITS:
                     ret = modbus_read_bits(ctx, configTemp->startAddress,
 										configTemp->number, tabBits);
-                    SaveBitsFile(tabBits, configTemp);
+                    if(ret != -1)
+                    	SaveBitsFile(tabBits, configTemp);
                     break;
                 case DISCRETE_INPUTS:
                     ret = modbus_read_input_bits(ctx, configTemp->startAddress,
 												configTemp->number, tabBits);
-                    SaveBitsFile(tabBits, configTemp);
+                    if(ret != -1)
+                    	SaveBitsFile(tabBits, configTemp);
                     break;
                 case HOLDING_REGISTER:
                     ret = modbus_read_registers(ctx, configTemp->startAddress,
 											configTemp->number, tabRegisters);
-                    SaveRegistersFile(tabRegisters, configTemp);
+                    if(ret != -1)
+                    	SaveRegistersFile(tabRegisters, configTemp);
                     break;
                 case INPUT_REGISTER:
                     ret = modbus_read_input_registers(ctx, configTemp->startAddress,
 													configTemp->number, tabRegisters);
-                    SaveRegistersFile(tabRegisters, configTemp);
+                    if(ret != -1)
+                    	SaveRegistersFile(tabRegisters, configTemp);
                     break;
                 default:
                     ret = -1;
@@ -117,11 +119,13 @@ int main(int argc, char *argv[])
             }
 
             configTemp = NULL;
+            sleep(1);
     	}
-        
+        goto CLOSE;
     	sleep(10);
     }
 
+CLOSE:
     /* Free the memory */
     free(tabBits);
     free(tabRegisters);
