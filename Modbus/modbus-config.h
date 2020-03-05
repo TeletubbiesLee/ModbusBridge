@@ -1,11 +1,13 @@
 /*
- * Copyright © 2008-2014 Stéphane Raimbault <stephane.raimbault@gmail.com>
+ * config.h
  *
- * SPDX-License-Identifier: BSD-3-Clause
+ *  Created on: 2019年8月28日
+ *      Author: Administrator
  */
 
-#ifndef _UNIT_TEST_H_
-#define _UNIT_TEST_H_
+#ifndef _MODBUS_CONFIG_H_
+#define _MODBUS_CONFIG_H_
+
 
 /* Constants defined by configure.ac */
 #define HAVE_INTTYPES_H @HAVE_INTTYPES_H@
@@ -55,22 +57,12 @@ enum {
     INPUT_REGISTER
 };
 
-const uint16_t UT_BITS_ADDRESS = 0x0;
-const uint16_t UT_BITS_NB = 0x10;
-const uint8_t UT_BITS_TAB[] = {0xA5};
 
-const uint16_t UT_INPUT_BITS_ADDRESS = 0x10;
-const uint16_t UT_INPUT_BITS_NB = 0x10;
-const uint8_t UT_INPUT_BITS_TAB[] = {0xDB};
-
-const uint16_t UT_REGISTERS_ADDRESS = 0x20;
-const uint16_t UT_REGISTERS_NB = 50;
-const uint16_t UT_REGISTERS_NB_MAX = 0x10;
-const uint16_t UT_REGISTERS_TAB[] = {0x022B, 0x0001, 0x0064, 0x4538, 0xAC8E, 0x220B, 0x0F01, 0x6004, 0x4C85, 0xEA83};
-
-const uint16_t UT_INPUT_REGISTERS_ADDRESS = 0x30;
-const uint16_t UT_INPUT_REGISTERS_NB = 50;
-const uint16_t UT_INPUT_REGISTERS_TAB[] = {0x0001, 0x0020, 0x0300, 0x4000, 0x0055, 0x0660, 0x7700, 0x0808};
+const uint16_t UT_BITS_NUMBER = 0x10;
+const uint16_t UT_INPUT_BITS_NUMBER = 0x10;
+const uint16_t UT_REGISTERS_NUMBER = 50;
+const uint16_t UT_INPUT_REGISTERS_NUMBER = 50;
 
 
-#endif /* _UNIT_TEST_H_ */
+
+#endif /* _MODBUS_CONFIG_H_ */

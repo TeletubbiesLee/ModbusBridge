@@ -25,7 +25,7 @@
 # define MSG_NOSIGNAL 0
 #endif
 
-#include ".\Modbus\unit-test.h"
+#include ".\Modbus\modbus-config.h"
 
 void ModbusPrintf(char* dataName, uint8_t *bitData, uint16_t *registerData, int dataNumber);
 
@@ -73,11 +73,11 @@ int main(int argc, char *argv[])
     printf("Connection Successful!\r\n");
 
     /* 为bit和寄存器分配内存空间 */
-    nbPoints = (UT_BITS_NB > UT_INPUT_BITS_NB) ? UT_BITS_NB : UT_INPUT_BITS_NB;
+    nbPoints = (UT_BITS_NUMBER > UT_INPUT_BITS_NUMBER) ? UT_BITS_NUMBER : UT_INPUT_BITS_NUMBER;
     tabBits = (uint8_t *) malloc(nbPoints * sizeof(uint8_t));
     memset(tabBits, 0, nbPoints * sizeof(uint8_t));
 
-    nbPoints = (UT_REGISTERS_NB > UT_INPUT_REGISTERS_NB) ? UT_REGISTERS_NB : UT_INPUT_REGISTERS_NB;
+    nbPoints = (UT_REGISTERS_NUMBER > UT_INPUT_REGISTERS_NUMBER) ? UT_REGISTERS_NUMBER : UT_INPUT_REGISTERS_NUMBER;
     tabRegisters = (uint16_t *) malloc(nbPoints * sizeof(uint16_t));
     memset(tabRegisters, 0, nbPoints * sizeof(uint16_t));
 
