@@ -27,7 +27,7 @@
 
 #include ".\Modbus\unit-test.h"
 
-void ModbusPrintf(uint8_t* dataName, int dataNumber, uint8_t* data);
+void ModbusPrintf(char* dataName, uint8_t *bitData, uint16_t *registerData, int dataNumber);
 
 
 /* client主机 */
@@ -81,7 +81,8 @@ int main(int argc, char *argv[])
     tabRegisters = (uint16_t *) malloc(nbPoints * sizeof(uint16_t));
     memset(tabRegisters, 0, nbPoints * sizeof(uint16_t));
 
-    /* TODO:对bit，input bit，holding register，input register的读写命令 */
+
+    /* 对bit，input bit，holding register，input register的读写命令 */
     while(1)
     {
     	for(j = 0; j < MODBUS_CONFIG_STRUCT_MAX; j++)
@@ -143,17 +144,38 @@ CLOSE:
  * @brief 配置文件初始化
  * @param dataName 数据的名称
  * @param dataNumber 数据的数量
- * @param data 数据的首地址
+ * @param bitData 线圈数据的首地址
+ * @param registerData 寄存器数据首地址
  * @return void
  */
-void ModbusPrintf(uint8_t* dataName, int dataNumber, uint8_t* data)
+void ModbusPrintf(char* dataName, uint8_t *bitData, uint16_t *registerData, int dataNumber)
 {
     int i = 0;
-    printf("%s: ", dataName);
-    for(i = 0; i < dataNumber; i++)
+    printf("%s: \n", dataName);
+    if(bitData != NULL)
     {
-        printf("%d, ", data[i]);
+    	for(i = 0; i < dataNumber; i++)
+		{
+			printf("%d, ", bitData[i]);
+			if((i%10) == 9)
+			{
+				printf("\n");
+			}
+		}
     }
+
+    if(registerData != NULL)
+	{
+		for(i = 0; i < dataNumber; i++)
+		{
+			printf("%d, ", registerData[i]);
+			if((i%10) == 9)
+			{
+				printf("\n");
+			}
+		}
+	}
+
     printf("\n");
 }
 

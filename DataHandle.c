@@ -19,6 +19,14 @@
 #include "./ParserCSV/csv.h"
 
 
+static int SaveDataInfo(int filefd, ConfigFile *dataInfo);
+static int Int2String(int number, char *string);
+static int SaveIntToFile(int fileFd, int number);
+static int SaveStringToFile(int fileFd, char *string, int stringLenth);
+static int GetTimeStr(char *timeStr);
+static int String2Int(char *string, int StringLenth);
+
+
 /**
  * @fn SaveBitsFile
  * @brief 保存离散线圈的数据到文件
@@ -111,7 +119,7 @@ int SaveRegistersFile(uint16_t *tabRegisters, ConfigFile *modbusRegister)
  * @param dataInfo 数据的相关信息结构体
  * @return 成功:0 错误:-1
  */
-int SaveDataInfo(int fileFd, ConfigFile *dataInfo)
+static int SaveDataInfo(int fileFd, ConfigFile *dataInfo)
 {
     /* 保存信息的格式：Data Name,数据名称,Start Address,起始地址,Number,数量, */
     SaveStringToFile(fileFd, "Data Name,", strlen("Data Name,"));
@@ -133,7 +141,7 @@ int SaveDataInfo(int fileFd, ConfigFile *dataInfo)
  * @param string 转换后的字符串
  * @return 成功:转换后字符串长度 错误:-1
  */
-int Int2String(int number, char *string)
+static int Int2String(int number, char *string)
 {
     int i = 0, j = 0;
     int tempNum = number;
@@ -180,7 +188,7 @@ int Int2String(int number, char *string)
  * @param number 需要保存的数
  * @return 成功:0 错误:-1
  */
-int SaveIntToFile(int fileFd, int number)
+static int SaveIntToFile(int fileFd, int number)
 {
     char string[20] = {0};  //存放数字转换后的字符串
     int stringLenth = 0;
@@ -200,7 +208,7 @@ int SaveIntToFile(int fileFd, int number)
  * @param stringLenth 字符串长度
  * @return 成功:0 错误:-1
  */
-int SaveStringToFile(int fileFd, char *string, int stringLenth)
+static int SaveStringToFile(int fileFd, char *string, int stringLenth)
 {
     ssize_t writeNum = 0;   //写入的数据长度
     writeNum = write(fileFd, string, stringLenth);
@@ -219,7 +227,7 @@ int SaveStringToFile(int fileFd, char *string, int stringLenth)
  * @param timeStr 保存时间字符串
  * @return 成功:0 错误:-1
  */
-int GetTimeStr(char *timeStr)
+static int GetTimeStr(char *timeStr)
 {
     time_t rawTime;
     struct tm *info;
@@ -305,18 +313,18 @@ int ParseCSVDataFile(char *fileName, uint8_t *bitData, uint16_t *registerData, i
  * @fn String2Int
  * @brief 字符串转整型
  * @param string 需要转换的字符串
- * @param StringLenth 字符串长度
+ * @param stringLenth 字符串长度
  * @return 转换后的整数
  */
-int String2Int(char *string, int StringLenth)
+static int String2Int(char *string, int stringLenth)
 {
     int number = 0;         //保存转换后的数
     bool isPositive = true;     //正数标志位
     int i = 0;
 
-    for(i = 0; i < StringLenth || string[i] == '\0'; i++)
+    for(i = 0; i < stringLenth && string[i] != '\0'; i++)
     {
-        if(string[i] == '-')
+        if(string[i] == '-' && i == 0)
         {
             isPositive = false;
             continue;

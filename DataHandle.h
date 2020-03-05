@@ -20,12 +20,7 @@
 
 int SaveBitsFile(uint8_t *tabBits, ConfigFile *modbusCoil);
 int SaveRegistersFile(uint16_t *tabRegisters, ConfigFile *modbusRegister);
-int SaveDataInfo(int filefd, ConfigFile *dataInfo);
-int Int2String(int number, char *string);
-int SaveIntToFile(int fileFd, int number);
-int SaveStringToFile(int fileFd, char *string, int stringLenth);
-int GetTimeStr(char *timeStr);
 int ParseCSVDataFile(char *fileName, uint8_t *bitData, uint16_t *registerData, int arrayNumber);
-int String2Int(char *string, int StringLenth);
+
 
 #endif

@@ -64,12 +64,12 @@ const uint16_t UT_INPUT_BITS_NB = 0x10;
 const uint8_t UT_INPUT_BITS_TAB[] = {0xDB};
 
 const uint16_t UT_REGISTERS_ADDRESS = 0x20;
-const uint16_t UT_REGISTERS_NB = 0xA;
+const uint16_t UT_REGISTERS_NB = 50;
 const uint16_t UT_REGISTERS_NB_MAX = 0x10;
 const uint16_t UT_REGISTERS_TAB[] = {0x022B, 0x0001, 0x0064, 0x4538, 0xAC8E, 0x220B, 0x0F01, 0x6004, 0x4C85, 0xEA83};
 
 const uint16_t UT_INPUT_REGISTERS_ADDRESS = 0x30;
-const uint16_t UT_INPUT_REGISTERS_NB = 0x8;
+const uint16_t UT_INPUT_REGISTERS_NB = 50;
 const uint16_t UT_INPUT_REGISTERS_TAB[] = {0x0001, 0x0020, 0x0300, 0x4000, 0x0055, 0x0660, 0x7700, 0x0808};
 
 
