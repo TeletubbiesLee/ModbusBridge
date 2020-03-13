@@ -21,6 +21,7 @@
 int SaveBitsFile(uint8_t *tabBits, ConfigFile *modbusCoil);
 int SaveRegistersFile(uint16_t *tabRegisters, ConfigFile *modbusRegister);
 int ParseCSVDataFile(char *fileName, uint8_t *bitData, uint16_t *registerData, int arrayNumber);
+int String2Int(char *string, int StringLenth);
 
 
 #endif

@@ -30,7 +30,7 @@
 void ModbusPrintf(char* dataName, uint8_t *bitData, uint16_t *registerData, int dataNumber);
 
 
-/* client主机 */
+/* modbus主机 */
 int main(int argc, char *argv[])
 {
     int useBackend;             //Modbus的类型
@@ -42,6 +42,22 @@ int main(int argc, char *argv[])
     int ret = -1;               //返回值
     int j = 0;
     ConfigFile *configTemp = NULL;  //用于临时保存结构体
+    int modbusGroupNumber = 0;
+
+    if(argc < 2)
+    {
+    	printf("error: too few arguments to program \'%s\'!\n", argv[0]);
+    	return -1;
+    }
+    else
+    {
+    	modbusGroupNumber = String2Int(argv[1], strlen(argv[1]));
+    	if(modbusGroupNumber < 0 || modbusGroupNumber > MODBUS_CONFIG_STRUCT_MAX)
+    	{
+			printf("error: arguments \'%s\' is wrong to program \'%s\'!\n", argv[1], argv[0]);
+			return -1;
+    	}
+    }
 
     Struct2JsonInit();
     ConfigFileInit();
@@ -85,7 +101,7 @@ int main(int argc, char *argv[])
     /* 对bit，input bit，holding register，input register的读写命令 */
     while(1)
     {
-    	for(j = 0; j < MODBUS_CONFIG_STRUCT_MAX; j++)
+    	for(j = 0; j < modbusGroupNumber; j++)
     	{
             configTemp = &g_ModbusConfigFile[j];
             switch(configTemp->functionCode)
@@ -122,11 +138,9 @@ int main(int argc, char *argv[])
             configTemp = NULL;
             sleep(1);
     	}
-        goto CLOSE;
     	sleep(10);
     }
 
-CLOSE:
     /* Free the memory */
     free(tabBits);
     free(tabRegisters);

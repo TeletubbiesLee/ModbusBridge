@@ -24,7 +24,6 @@ static int Int2String(int number, char *string);
 static int SaveIntToFile(int fileFd, int number);
 static int SaveStringToFile(int fileFd, char *string, int stringLenth);
 static int GetTimeStr(char *timeStr);
-static int String2Int(char *string, int StringLenth);
 
 
 /**
@@ -316,7 +315,7 @@ int ParseCSVDataFile(char *fileName, uint8_t *bitData, uint16_t *registerData, i
  * @param stringLenth 字符串长度
  * @return 转换后的整数
  */
-static int String2Int(char *string, int stringLenth)
+int String2Int(char *string, int stringLenth)
 {
     int number = 0;         //保存转换后的数
     bool isPositive = true;     //正数标志位
@@ -324,13 +323,21 @@ static int String2Int(char *string, int stringLenth)
 
     for(i = 0; i < stringLenth && string[i] != '\0'; i++)
     {
-        if(string[i] == '-' && i == 0)
+        if(i == 0 && string[i] == '-')
         {
             isPositive = false;
             continue;
         }
-        number *= 10;
-        number += string[i] - '0';
+        if('0' <= string[i] && string[i] <= '9')
+        {
+			number *= 10;
+			number += string[i] - '0';
+        }
+        else
+        {
+        	printf("\'String2Int(%s, %d)\' error!\n", string, stringLenth);
+        	return 0xFFFFFFFF;
+        }
     }
     if(isPositive == false)
     {
