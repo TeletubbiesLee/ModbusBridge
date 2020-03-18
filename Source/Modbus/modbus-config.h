@@ -32,6 +32,12 @@
 #define UART_DATA_BIT       8
 #define UART_STOP_BIT       1
 
+#define UT_BITS_NUMBER 				20
+#define UT_INPUT_BITS_NUMBER		20
+#define UT_REGISTERS_NUMBER			50
+#define UT_INPUT_REGISTERS_NUMBER	50
+
+
 #define BUG_REPORT(_cond, _format, _args ...) \
     printf("\nLine %d: assertion error for '%s': " _format "\n", __LINE__, # _cond, ## _args);
 
@@ -56,13 +62,6 @@ enum {
     HOLDING_REGISTER,
     INPUT_REGISTER
 };
-
-
-const uint16_t UT_BITS_NUMBER = 0x10;
-const uint16_t UT_INPUT_BITS_NUMBER = 0x10;
-const uint16_t UT_REGISTERS_NUMBER = 50;
-const uint16_t UT_INPUT_REGISTERS_NUMBER = 50;
-
 
 
 #endif /* _MODBUS_CONFIG_H_ */

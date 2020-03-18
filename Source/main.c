@@ -1,7 +1,12 @@
-/*
- * Copyright Â© 2008-2014 StÃ©phane Raimbault <stephane.raimbault@gmail.com>
+/**
+ * @file Main.c
+ * @brief main函数程序文件
+ * @copyright Copyright (c) 2020 Beijing SOJO Electric CO., LTD.
+ * @company  SOJO
+ * @date 2020.02.17
  *
- * SPDX-License-Identifier: BSD-3-Clause
+ * @author Lei.L
+ * @version ver 1.0
  */
 
 #include <stdio.h>
@@ -27,13 +32,12 @@
 
 #include ".\Modbus\modbus-config.h"
 
-void ModbusPrintf(char* dataName, uint8_t *bitData, uint16_t *registerData, int dataNumber);
+void ModbusPrintf(char* dataName, uint8_t *bitData, unsigned short *registerData, int dataNumber);
 
 
 /* modbus主机 */
 int main(int argc, char *argv[])
 {
-    int useBackend;             //Modbus的类型
     modbus_t *ctx = NULL;       //成功打开设备后返回的结构体指针
     uint8_t *tabBits = NULL;            //bit位的空间
     uint16_t *tabRegisters = NULL;      //寄存器的空间
@@ -63,11 +67,9 @@ int main(int argc, char *argv[])
     ConfigFileInit();
     GetJsonFile();
 
-    useBackend = RTU;       //Modbus使用RTU类型
-
     /* 根据Modbus_RTU的类型建立连接 */
     ctx = modbus_new_rtu(UART_DEVICE_NAME, UART_BANDRATE, UART_PARITY, UART_DATA_BIT, UART_STOP_BIT);
-    if (NULL == ctx)
+    if(NULL == ctx)
     {
         printf("Unable to allocate libmodbus context\n");
         return -1;
@@ -80,7 +82,7 @@ int main(int argc, char *argv[])
     modbus_set_slave(ctx, SERVER_ID);
 
     /* 建立连接 */
-    if (-1 == modbus_connect(ctx))
+    if(-1 == modbus_connect(ctx))
     {
         printf("Connection failed: %s\n", modbus_strerror(errno));
         modbus_free(ctx);

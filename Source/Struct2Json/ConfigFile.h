@@ -46,7 +46,7 @@ extern ConfigFile g_ModbusConfigFile[MODBUS_CONFIG_STRUCT_MAX];
 extern ConfigFile *g_JsonFile;
 
 /****************************函数定义****************************/
-extern uint16_t GetConfigFileLength(void);
+extern int GetConfigFileLength(void);
 extern void ConfigFileInit(void);
 
 /**********************************END**********************************/

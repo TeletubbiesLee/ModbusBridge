@@ -27,7 +27,7 @@ ConfigFile *g_JsonFile = g_ModbusConfigFile;
  * @brief 获取配置文件结构体数组长度
  * @return 返回数组长度
  */
-inline uint16_t GetConfigFileLength(void)
+inline int GetConfigFileLength(void)
 {
     return (sizeof(g_ModbusConfigFile) / sizeof(g_ModbusConfigFile[0]));    //配置文件结构体数组长度;
 }
@@ -40,8 +40,8 @@ inline uint16_t GetConfigFileLength(void)
  */
 void ConfigFileInit(void)
 {
-	uint16_t lenth = 0;
-	uint8_t i = 0;
+	int lenth = 0;
+	int i = 0;
 	
 	lenth = GetConfigFileLength();
 	for(i = 0; i < lenth; i++)
