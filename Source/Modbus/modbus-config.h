@@ -1,8 +1,12 @@
-/*
- * config.h
+/**
+ * @file modbus-config.h
+ * @brief modbus配置头文件
+ * @copyright Copyright (c) 2020 Beijing SOJO Electric CO., LTD.
+ * @company  SOJO
+ * @date 2020.02.17
  *
- *  Created on: 2019年8月28日
- *      Author: Administrator
+ * @author Lei.L
+ * @version ver 1.0
  */
 
 #ifndef _MODBUS_CONFIG_H_
