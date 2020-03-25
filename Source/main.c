@@ -14,23 +14,26 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include ".\Modbus\modbus.h"
 #include ".\Struct2Json\JsonFileOperation.h"
 #include ".\Struct2Json\ConfigFile.h"
 #include "DataHandle.h"
+#include ".\Modbus\modbus-config.h"
+#include "Config.h"
+
 #ifdef _WIN32
 # include <winsock2.h>
 #else
 # include <sys/socket.h>
 #endif
 
-
 /* For MinGW */
 #ifndef MSG_NOSIGNAL
 # define MSG_NOSIGNAL 0
 #endif
 
-#include ".\Modbus\modbus-config.h"
 
 void ModbusPrintf(char* dataName, uint8_t *bitData, unsigned short *registerData, int dataNumber);
 
@@ -50,16 +53,16 @@ int main(int argc, char *argv[])
 
     if(argc < 2)
     {
-    	printf("error: too few arguments to program \'%s\'!\n", argv[0]);
-    	return -1;
+    	printf_debug("error: too few arguments to program \'%s\'!\n", argv[0]);
+    	return FEW_ARGUMENTS;
     }
     else
     {
     	modbusGroupNumber = String2Int(argv[1], strlen(argv[1]));
     	if(modbusGroupNumber < 0 || modbusGroupNumber > MODBUS_CONFIG_STRUCT_MAX)
     	{
-			printf("error: arguments \'%s\' is wrong to program \'%s\'!\n", argv[1], argv[0]);
-			return -1;
+    		printf_debug("error: arguments \'%s\' is wrong to program \'%s\'!\n", argv[1], argv[0]);
+			return ERROR_ARGUMENTS;
     	}
     }
 
@@ -71,8 +74,8 @@ int main(int argc, char *argv[])
     ctx = modbus_new_rtu(UART_DEVICE_NAME, UART_BANDRATE, UART_PARITY, UART_DATA_BIT, UART_STOP_BIT);
     if(NULL == ctx)
     {
-        printf("Unable to allocate libmodbus context\n");
-        return -1;
+    	printf_debug("Unable to allocate libmodbus context\n");
+        return FUNCTION_FAIL;
     }
 
     modbus_set_debug(ctx, TRUE);        //设置Dubug模式
@@ -84,9 +87,9 @@ int main(int argc, char *argv[])
     /* 建立连接 */
     if(-1 == modbus_connect(ctx))
     {
-        printf("Connection failed: %s\n", modbus_strerror(errno));
+    	printf_debug("Connection failed: %s\n", modbus_strerror(errno));
         modbus_free(ctx);
-        return -1;
+        return FUNCTION_FAIL;
     }
     printf("Connection Successful!\r\n");
 
@@ -99,6 +102,15 @@ int main(int argc, char *argv[])
     tabRegisters = (uint16_t *) malloc(nbPoints * sizeof(uint16_t));
     memset(tabRegisters, 0, nbPoints * sizeof(uint16_t));
 
+    /* 查看是否存在存放CSV数据文件的文件夹，不存在则创建 */
+    if(access(CSV_DIR_NAME, F_OK) != 0)
+    {
+    	if(mkdir(CSV_DIR_NAME, S_IRWXU | S_IRWXG | S_IRWXO) == -1)
+    	{
+    		printf_debug("mkdir %s failed!\n", CSV_DIR_NAME);
+    		return FUNCTION_FAIL;
+    	}
+    }
 
     /* 对bit，input bit，holding register，input register的读写命令 */
     while(1)
@@ -151,7 +163,7 @@ int main(int argc, char *argv[])
     modbus_close(ctx);
     modbus_free(ctx);
 
-    return 0;
+    return NO_ERROR;
 }
 
 

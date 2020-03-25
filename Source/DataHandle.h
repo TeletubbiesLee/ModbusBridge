@@ -13,8 +13,9 @@
 #define _DATA_HANDLE_H_
 
 #include "./Struct2Json/ConfigFile.h"
+#include <stdint.h>
 
-#define STRING_LENTH DATA_NAME_LENTH_MAX
+
 #define IS_BIT 0
 #define IS_REGISTER 1
 

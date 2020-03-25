@@ -17,6 +17,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "./ParserCSV/csv.h"
+#include "Config.h"
 
 
 static int SaveDataInfo(int filefd, ConfigFile *dataInfo);
@@ -31,19 +32,22 @@ static int GetTimeStr(char *timeStr);
  * @brief 保存离散线圈的数据到文件
  * @param tabBits 需要保存的数据
  * @param modbusCoil 数据的相关信息结构体
- * @return 成功:0 错误:-1
+ * @return 成功:0 错误:其他
  */
 int SaveBitsFile(uint8_t *tabBits, ConfigFile *modbusCoil)
 {
     int fileFd = 0;         //文件描述符
     int i = 0;
-    char fileName[40] = {0};    //文件名
+    char fileName[FILENAME_STRING_MAX] = {0};    //文件名
+    char temp[20] = {0};
 
-    GetTimeStr(fileName);
+    GetTimeStr(temp);
+	strncat(fileName, CSV_DIR_NAME, strlen(CSV_DIR_NAME));
+	strncat(fileName, temp, strlen(temp));
     strncat(fileName, "Bits.csv", strlen("Bits.csv"));
     fileFd = open(fileName, O_RDWR | O_CREAT);
     if(fileFd < 0)
-		return -1;
+		return OPEN_FILE_FAIL;
 
     SaveDataInfo(fileFd, modbusCoil);
 
@@ -70,7 +74,7 @@ int SaveBitsFile(uint8_t *tabBits, ConfigFile *modbusCoil)
 
     close(fileFd);
         
-    return 0;
+    return NO_ERROR;
 }
 
 
@@ -79,19 +83,22 @@ int SaveBitsFile(uint8_t *tabBits, ConfigFile *modbusCoil)
  * @brief 保存寄存器的数据到文件
  * @param tabRegisters 需要保存的数据
  * @param modbusRegister 数据的相关信息结构体
- * @return 成功:0 错误:-1
+ * @return 成功:0 错误:其他
  */
 int SaveRegistersFile(uint16_t *tabRegisters, ConfigFile *modbusRegister)
 {
     int fileFd = 0;         //文件描述符
     int i = 0;
-    char fileName[40] = {0};    //文件名
+    char fileName[FILENAME_STRING_MAX] = {0};    //文件名
+    char temp[20] = {0};
 
-    GetTimeStr(fileName);
+    GetTimeStr(temp);
+    strncat(fileName, CSV_DIR_NAME, strlen(CSV_DIR_NAME));
+    strncat(fileName, temp, strlen(temp));
     strncat(fileName, "Regiters.csv", strlen("Regiters.csv"));
     fileFd = open(fileName, O_RDWR | O_CREAT);
     if(fileFd < 0)
-		return -1;
+		return OPEN_FILE_FAIL;
 
     SaveDataInfo(fileFd, modbusRegister);
 
@@ -107,7 +114,7 @@ int SaveRegistersFile(uint16_t *tabRegisters, ConfigFile *modbusRegister)
     }
 
     close(fileFd);
-    return 0;
+    return NO_ERROR;
 }
 
 
@@ -116,7 +123,7 @@ int SaveRegistersFile(uint16_t *tabRegisters, ConfigFile *modbusRegister)
  * @brief 保存数据的说明信息
  * @param filefd 文件描述符
  * @param dataInfo 数据的相关信息结构体
- * @return 成功:0 错误:-1
+ * @return 成功:0 错误:其他
  */
 static int SaveDataInfo(int fileFd, ConfigFile *dataInfo)
 {
@@ -129,7 +136,7 @@ static int SaveDataInfo(int fileFd, ConfigFile *dataInfo)
     SaveIntToFile(fileFd, dataInfo->number);
     SaveStringToFile(fileFd, ",\n", strlen(",\n"));
 
-    return 0;
+    return NO_ERROR;
 }
 
 
@@ -138,7 +145,7 @@ static int SaveDataInfo(int fileFd, ConfigFile *dataInfo)
  * @brief 整型数转字符串
  * @param number 需要转换的数
  * @param string 转换后的字符串
- * @return 成功:转换后字符串长度 错误:-1
+ * @return 成功:转换后字符串长度 错误:其他
  */
 static int Int2String(int number, char *string)
 {
@@ -148,7 +155,7 @@ static int Int2String(int number, char *string)
 
     if(string == NULL)
     {
-        return -1;
+        return FUNCTION_FAIL;
     }
 
     if(tempNum == 0)
@@ -185,7 +192,7 @@ static int Int2String(int number, char *string)
  * @brief 保存整型数到文件
  * @param fileFd 文件描述符
  * @param number 需要保存的数
- * @return 成功:0 错误:-1
+ * @return 成功:0 错误:其他
  */
 static int SaveIntToFile(int fileFd, int number)
 {
@@ -194,7 +201,7 @@ static int SaveIntToFile(int fileFd, int number)
 
     stringLenth = Int2String(number, string);
     if(stringLenth == -1)
-        return -1;
+        return FUNCTION_FAIL;
     return SaveStringToFile(fileFd, string, stringLenth);
 }
 
@@ -205,7 +212,7 @@ static int SaveIntToFile(int fileFd, int number)
  * @param fileFd 文件描述符
  * @param string 需要保存的字符串
  * @param stringLenth 字符串长度
- * @return 成功:0 错误:-1
+ * @return 成功:0 错误:其他
  */
 static int SaveStringToFile(int fileFd, char *string, int stringLenth)
 {
@@ -213,10 +220,10 @@ static int SaveStringToFile(int fileFd, char *string, int stringLenth)
     writeNum = write(fileFd, string, stringLenth);
     if(writeNum < 0)
     {
-        printf("write %s error!\n", string);
-        return -1;
+    	printf_debug("write %s error!\n", string);
+        return FUNCTION_FAIL;
     }
-    return 0;
+    return NO_ERROR;
 }
 
 
@@ -236,7 +243,7 @@ static int GetTimeStr(char *timeStr)
 
     strftime(timeStr, 20, "%Y%m%d%H%M%S", info);    //时间字符串格式化
 
-    return 0;
+    return NO_ERROR;
 }
 
 
@@ -247,7 +254,7 @@ static int GetTimeStr(char *timeStr)
  * @param bitData 需要保存的bit数据
  * @param registerData 需要保存的寄存器数据
  * @param arrayNumber 数据数组大小
- * @return 成功:0 错误:-1
+ * @return 成功:0 错误:其他
  */
 int ParseCSVDataFile(char *fileName, uint8_t *bitData, uint16_t *registerData, int arrayNumber)
 {
@@ -270,18 +277,18 @@ int ParseCSVDataFile(char *fileName, uint8_t *bitData, uint16_t *registerData, i
     }
     else
     {
-        return -1;
+        return ERROR_ARGUMENTS;
     }
 
     fp = fopen(fileName, "r");
 
     /* 保存信息的格式：Data Name,数据名称,Start Address,起始地址,Number,数量, */
-    csvLineString = fread_csv_line(fp, 1024, &done, &err);
+    csvLineString = fread_csv_line(fp, CSV_LINE_STRING_MAX, &done, &err);
     parsed = parse_csv(csvLineString);
 
     while(num < arrayNumber)
     {
-        csvLineString = fread_csv_line(fp, 1024, &done, &err);
+        csvLineString = fread_csv_line(fp, CSV_LINE_STRING_MAX, &done, &err);
         parsed = parse_csv(csvLineString);
         for(i = 0; i < 10 && num < arrayNumber; i++)
         {
@@ -304,7 +311,7 @@ int ParseCSVDataFile(char *fileName, uint8_t *bitData, uint16_t *registerData, i
     csvLineString = NULL;
     parsed = NULL;
     
-    return 0;
+    return NO_ERROR;
 }
 
 
@@ -335,7 +342,7 @@ int String2Int(char *string, int stringLenth)
         }
         else
         {
-        	printf("\'String2Int(%s, %d)\' error!\n", string, stringLenth);
+        	printf_debug("\'String2Int(%s, %d)\' error!\n", string, stringLenth);
         	return 0xFFFFFFFF;
         }
     }

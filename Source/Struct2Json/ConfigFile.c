@@ -13,6 +13,7 @@
 #include "ConfigFile.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 
 
 /*************************************************全局变量*************************************************/

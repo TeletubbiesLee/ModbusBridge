@@ -29,17 +29,7 @@
     #endif
 #endif
 
-#define SERVER_ID           1
-#define UART_DEVICE_NAME    "/dev/ttymxc1"
-#define UART_BANDRATE       115200
-#define UART_PARITY         'N'
-#define UART_DATA_BIT       8
-#define UART_STOP_BIT       1
-
-#define UT_BITS_NUMBER 				20
-#define UT_INPUT_BITS_NUMBER		20
-#define UT_REGISTERS_NUMBER			50
-#define UT_INPUT_REGISTERS_NUMBER	50
+#include "../Config.h"
 
 
 #define BUG_REPORT(_cond, _format, _args ...) \
