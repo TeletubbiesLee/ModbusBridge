@@ -22,7 +22,7 @@
 #define MODBUS_CONFIG_STRUCT_MAX		30							//modbus配置结构体数组的最大数量
 #define DATA_NAME_LENTH_MAX				20							//modbus配置结构体中数据名字字符串长度最大值
 
-#define CSV_DIR_NAME					"CSV_Data//"				//存放csv数据的文件夹名
+#define CSV_DIR_NAME					"CSV_Data/"				//存放csv数据的文件夹名
 #define FILENAME_STRING_MAX				60							//csv数据文件名字符串长度最大值
 #define CSV_LINE_STRING_MAX				1024						//csv文件一行最大的字符串长度
 
