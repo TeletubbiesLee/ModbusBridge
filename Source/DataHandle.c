@@ -309,10 +309,6 @@ int ParseCSVDataFile(char *fileName, uint8_t *bitData, uint16_t *registerData, i
 
     fclose(fp);
     fp = NULL;
-    free(csvLineString);
-    csvLineString = NULL;
-    free_csv_line(parsed);
-    parsed = NULL;
     
     return NO_ERROR;
 }
