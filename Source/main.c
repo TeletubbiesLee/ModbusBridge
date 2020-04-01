@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 
     int nbPoints;               //空间大小
     int ret = -1;               //返回值
-    int j = 0;
+    int i = 0, j = 0, tempValue = 0;
     ConfigFile *configTemp = NULL;  //用于临时保存结构体
     int modbusGroupNumber = 0;
 
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     /* 查看是否存在存放CSV数据文件的文件夹，不存在则创建 */
     if(access(CSV_DIR_NAME, F_OK) != 0)
     {
-    	if(mkdir(CSV_DIR_NAME, S_IRWXU | S_IRWXG | S_IRWXO) == -1)
+    	if(mkdir(CSV_DIR_NAME, S_IRWXU) == -1)
     	{
     		printf_debug("mkdir %s failed!\n", CSV_DIR_NAME);
     		return FUNCTION_FAIL;
@@ -118,39 +118,41 @@ int main(int argc, char *argv[])
     	for(j = 0; j < modbusGroupNumber; j++)
     	{
             configTemp = &g_ModbusConfigFile[j];
-            switch(configTemp->functionCode)
+            for(i = 0; i < configTemp->number; i += tempValue)
             {
-                case COIL_BITS:
-                    ret = modbus_read_bits(ctx, configTemp->startAddress,
-										configTemp->number, tabBits);
-                    if(ret != -1)
-                    	SaveBitsFile(tabBits, configTemp);
-                    break;
-                case DISCRETE_INPUTS:
-                    ret = modbus_read_input_bits(ctx, configTemp->startAddress,
-												configTemp->number, tabBits);
-                    if(ret != -1)
-                    	SaveBitsFile(tabBits, configTemp);
-                    break;
-                case HOLDING_REGISTER:
-                    ret = modbus_read_registers(ctx, configTemp->startAddress,
-											configTemp->number, tabRegisters);
-                    if(ret != -1)
-                    	SaveRegistersFile(tabRegisters, configTemp);
-                    break;
-                case INPUT_REGISTER:
-                    ret = modbus_read_input_registers(ctx, configTemp->startAddress,
-													configTemp->number, tabRegisters);
-                    if(ret != -1)
-                    	SaveRegistersFile(tabRegisters, configTemp);
-                    break;
-                default:
-                    ret = -1;
-                    break;
+            	tempValue = ((configTemp->number - i) > 125 ? 125 : configTemp->number - i);
+            	printf("tempValue = %d, configTemp->number = %d\n", tempValue, configTemp->number);
+            	printf("functionCode = %d, i = %d\n", configTemp->functionCode, i);
+				switch(configTemp->functionCode)
+				{
+					case COIL_BITS:
+						ret = modbus_read_bits(ctx, configTemp->startAddress + i, tempValue, &tabBits[i]);
+						if(ret != -1 && i + tempValue == configTemp->number)
+							SaveBitsFile(tabBits, configTemp);
+						break;
+					case DISCRETE_INPUTS:
+						ret = modbus_read_input_bits(ctx, configTemp->startAddress + i, tempValue, &tabBits[i]);
+						if(ret != -1 && i + tempValue == configTemp->number)
+							SaveBitsFile(tabBits, configTemp);
+						break;
+					case HOLDING_REGISTER:
+						ret = modbus_read_registers(ctx, configTemp->startAddress + i, tempValue, &tabRegisters[i]);
+						if(ret != -1 && i + tempValue == configTemp->number)
+							SaveRegistersFile(tabRegisters, configTemp);
+						break;
+					case INPUT_REGISTER:
+						ret = modbus_read_input_registers(ctx, configTemp->startAddress + i, tempValue, &tabRegisters[i]);
+						if(ret != -1 && i + tempValue == configTemp->number)
+							SaveRegistersFile(tabRegisters, configTemp);
+						break;
+					default:
+						ret = -1;
+						break;
+				}
+				sleep(1);
             }
-
             configTemp = NULL;
-            sleep(1);
+
     	}
     	sleep(10);
     }
