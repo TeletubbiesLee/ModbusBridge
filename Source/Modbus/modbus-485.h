@@ -14,8 +14,8 @@
 
 typedef enum
 {
-	DISABLE = 0,
-	ENABLE
+	DISABLE_485 = 0,
+	ENABLE_485
 }RS485_ENABLE_t;
 
 int rs485_enable(const int fd, const RS485_ENABLE_t enable);
