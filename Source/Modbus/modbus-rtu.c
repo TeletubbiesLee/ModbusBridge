@@ -272,7 +272,6 @@ static void _modbus_rtu_ioctl_rts(modbus_t *ctx, int on)
 
 static ssize_t _modbus_rtu_send(modbus_t *ctx, const uint8_t *req, int req_length)
 {
-	int num = 0;
 #if defined(_WIN32)
     modbus_rtu_t *ctx_rtu = ctx->backend_data;
     DWORD n_bytes = 0;
@@ -298,10 +297,14 @@ static ssize_t _modbus_rtu_send(modbus_t *ctx, const uint8_t *req, int req_lengt
         return size;
     } else {
 #endif
-    	num = write(ctx->s, req, req_length);
+#if RS485_MODE
+    	int num = write(ctx->s, req, req_length);
 		usleep(10 * 1000);
 		rs485_enable(ctx->s, ENABLE_485);
 		return num;
+#else
+		return write(ctx->s, req, req_length);
+#endif
 #if HAVE_DECL_TIOCM_RTS
     }
 #endif

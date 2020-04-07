@@ -26,10 +26,10 @@
 #define FILENAME_STRING_MAX				60							//csv数据文件名字符串长度最大值
 #define CSV_LINE_STRING_MAX				1024						//csv文件一行最大的字符串长度
 
-
+#define RS485_MODE						1
 #define SERVER_ID           			1
-#define UART_DEVICE_NAME    			"/dev/ttymxc3"
-#define UART_BANDRATE       			9600
+#define UART_DEVICE_NAME    			"/dev/ttymxc5"
+#define UART_BANDRATE       			115200
 #define UART_PARITY         			'N'
 #define UART_DATA_BIT       			8
 #define UART_STOP_BIT       			1
